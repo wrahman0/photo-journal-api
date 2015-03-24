@@ -1,0 +1,9 @@
+{
+  "local": {
+    "host": "localhost",
+    "user": "root",
+    "password": "",
+    "database": "photojournal",
+    "driver": "mysql"
+  }
+}

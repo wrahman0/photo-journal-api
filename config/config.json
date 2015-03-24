@@ -1,0 +1,6 @@
+{
+  "local": {
+    "name": "Local Dev",
+    "port": 3000
+  }
+}
