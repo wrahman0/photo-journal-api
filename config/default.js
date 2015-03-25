@@ -9,12 +9,12 @@ var dbConfigs = JSON.parse(fs.readFileSync(path.join(__dirname, 'database.json')
 var env = process.env.envName || 'local';
 
 var loadEnvVars = function (config) {
-  return _.mapValues(config, function (val) {
-    if (_.isObject(val) && _.has(val, 'ENV')) {
-      return process.env[val.ENV];
-    }
-    return val;
-  });
+    return _.mapValues(config, function (val) {
+        if (_.isObject(val) && _.has(val, 'ENV')) {
+            return process.env[val.ENV];
+        }
+        return val;
+    });
 };
 
 var config = loadEnvVars(configs[env]);
