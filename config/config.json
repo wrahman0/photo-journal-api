@@ -2,5 +2,9 @@
   "local": {
     "name": "Local Dev",
     "port": 3000
+  },
+  "test": {
+    "name": "Local Testing",
+    "port": 3001
   }
 }

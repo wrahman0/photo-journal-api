@@ -59,10 +59,11 @@ server.use(function (req, res, next) {
 // Routes
 server.get('/api/users/', userHandlers.index);
 server.get('/api/users/:userName', userHandlers.view);
-server.post('/api/users/register', userHandlers.create);
+server.post('/api/users/register', userHandlers.createUser);
 server.del('/api/users/:userName', userHandlers.del);
 
 server.get('/api/entries/', entryHandlers.index);
+server.post('/api/entries/', entryHandlers.createEntry);
 
 sequelize.authenticate().then(function () {
     console.log('Connection has been established successfully');

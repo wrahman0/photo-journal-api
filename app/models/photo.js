@@ -11,6 +11,7 @@ module.exports = function (sequelize, DataTypes) {
             associate: function (sequelize, models) {
                 models.Photo.belongsTo(models.Entry);
             }
-        }
+        },
+        indexes: [{fields: ['entryId'], method: 'BTREE'}]
     });
 };

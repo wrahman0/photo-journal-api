@@ -13,5 +13,20 @@ module.exports = function (entryHelpers) {
         });
     };
 
-    return {index: index};
+    var createEntry = function createEntry(req, res, next) {
+
+        var entryInfo = _.pick(req.body, 'title', 'notes', 'tags', 'location');
+
+        entryHelpers.createEntry(entryInfo)
+            .then(function () {
+                res.send(201);
+                next();
+            }).catch(function (err){
+                res.send(400, err);
+                next();
+            });
+
+    };
+
+    return {index: index, createEntry: createEntry};
 };
