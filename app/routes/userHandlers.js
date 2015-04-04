@@ -1,6 +1,5 @@
 "use strict";
 
-var Promise = require('bluebird');
 var _ = require('lodash');
 var httpErrors = require('restify').errors;
 
@@ -22,24 +21,33 @@ module.exports = function (userHelpers) {
 
     var create = function create(req, res, next) {
         var userInfo = _.pick(req.body, 'name', 'email');
+
+        // TODO: move this logic into the helper
         userHelpers.getUser(userInfo.name)
             .then(function(user){
-                if (user === null){
-                    // User doesnt exist
+                if (_.isEmpty(user) || _.isUndefined(user)){
                     return userHelpers.createUser(userInfo);
                 }else{
-                    // TODO: Error
+                    // TODO: Central error.js
                     throw new Error("User exists");
                 }
             }).then(function (user){
-                console.log ("Created User: ", user);
-                res.json(201);
+                res.send(201);
                 next();
-            }).catch(function (err){
-                console.log (err);
+            }).catch(function (){
+                res.send(new httpErrors.ConflictError('User Exists'));
+                next();
             });
 
     };
 
-    return {index: index, view: view, create: create};
+    var del = function del(req, res, next){
+        var name = req.params.userName;
+        userHelpers.deleteUser(name).then(function (){
+            res.send(204);
+            next();
+        });
+    };
+
+    return {index: index, view: view, create: create, del: del};
 };

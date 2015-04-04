@@ -1,6 +1,5 @@
 "use strict";
 
-var Promise = require('bluebird');
 var _ = require('lodash');
 
 module.exports = function (models) {
@@ -12,6 +11,9 @@ module.exports = function (models) {
     var getUser = function getUser(name) {
         return models.User.findAll({
             where: {name: name}
+        }).then(function (user){
+            if (user.length === 0) return null;
+            else return user[0];
         });
     };
 
@@ -19,5 +21,15 @@ module.exports = function (models) {
         return models.User.create({name: userInfo.name, email: userInfo.email});
     };
 
-    return {getUsers: getUsers, getUser: getUser, createUser: createUser};
+    var deleteUser = function deleteUser(userName){
+
+        return models.User.find({where: {name: userName}})
+            .then(function (user){
+                if (!_.isNull(user)){
+                    return user.destroy();
+                }
+            });
+    };
+
+    return {getUsers: getUsers, getUser: getUser, createUser: createUser, deleteUser: deleteUser};
 };

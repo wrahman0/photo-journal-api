@@ -60,6 +60,7 @@ server.use(function (req, res, next) {
 server.get('/api/users/', userHandlers.index);
 server.get('/api/users/:userName', userHandlers.view);
 server.post('/api/users/register', userHandlers.create);
+server.del('/api/users/:userName', userHandlers.del);
 
 server.get('/api/entries/', entryHandlers.index);
 
