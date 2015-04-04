@@ -40,7 +40,7 @@ describe('API - User Handler', function () {
                 return sequelize.sync({force: true});
             });
 
-            it.only('should return an array of all the users when users exist', function (done) {
+            it('should return an array with all the user info when users exist', function (done) {
                 api.get(getEndpoint())
                     .expect('Content-Type', /json/)
                     .expect(200)
@@ -49,19 +49,29 @@ describe('API - User Handler', function () {
                     })
                     .end(done);
             });
+
+            it('should return an array with all the user info when users exist', function (done) {
+                api.get(getEndpoint())
+                    .expect('Content-Type', /json/)
+                    .expect(200)
+                    .expect(function(res){
+                        expect(res.body[0]).to.have.all.keys('name', 'email', 'createdAt', 'updatedAt', 'id');
+                        expect(res.body[0]).to.have.property('name', test_info.name);
+                        expect(res.body[0]).to.have.property('email', test_info.email);
+                    })
+                    .end(done);
+            });
+
+
         });
 
-        describe('Users exist', function (){
-
-            before(function(){
-                return sequelize.sync({force: true});
-            });
+        describe('Users does not exist', function (){
 
             after(function(){
                 return sequelize.sync({force: true});
             });
 
-            it('should return an array of all the users when users exist', function (done) {
+            it('should return an empty array when user does not exist', function (done) {
                 api.get(getEndpoint())
                     .expect('Content-Type', /json/)
                     .expect(200)
@@ -69,8 +79,6 @@ describe('API - User Handler', function () {
                     .end(done);
             });
         });
-
-
     });
 
 });

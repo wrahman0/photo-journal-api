@@ -9,9 +9,9 @@ module.exports = function (sequelize, DataTypes) {
         timestamps: true,
         classMethods: {
             associate: function (sequelize, models) {
-                models.User.hasMany(models.Entry);
+                models.User.hasMany(models.Entry, {as: 'Entry'});
             }
         },
-        indexes: [{fields: ['name'], method: 'BTREE'}]
+        indexes: [{fields: ['name', 'id'], method: 'BTREE'}]
     });
 };
