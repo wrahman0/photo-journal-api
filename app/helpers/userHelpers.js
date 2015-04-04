@@ -16,8 +16,7 @@ module.exports = function (models) {
     };
 
     var createUser = function createUser(userInfo) {
-        console.log(userInfo);
-        return models.User.create({name: userInfo.name, description: userInfo.description});
+        return models.User.create({name: userInfo.name, email: userInfo.email});
     };
 
     return {getUsers: getUsers, getUser: getUser, createUser: createUser};

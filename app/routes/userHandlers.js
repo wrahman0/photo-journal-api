@@ -14,22 +14,31 @@ module.exports = function (userHelpers) {
     };
 
     var view = function view(req, res, next) {
-        userHelpers.getUser(req.params.userId).then(function (user) {
+        userHelpers.getUser(req.params.userName).then(function (user) {
             res.json(user);
             next();
         });
     };
 
     var create = function create(req, res, next) {
-        // TODO: Validation
+        var userInfo = _.pick(req.body, 'name', 'email');
+        userHelpers.getUser(userInfo.name)
+            .then(function(user){
+                if (user === null){
+                    // User doesnt exist
+                    return userHelpers.createUser(userInfo);
+                }else{
+                    // TODO: Error
+                    throw new Error("User exists");
+                }
+            }).then(function (user){
+                console.log ("Created User: ", user);
+                res.json(201);
+                next();
+            }).catch(function (err){
+                console.log (err);
+            });
 
-        var userInfo = _.pick(req.body, 'name', 'description');
-
-        userHelpers.createUser(userInfo).then(function (user){
-            console.log("Created: ", user);
-            res.json(user);
-            next();
-        });
     };
 
     return {index: index, view: view, create: create};
