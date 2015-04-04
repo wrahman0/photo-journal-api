@@ -11,21 +11,27 @@ module.exports = function (models) {
     var getUser = function getUser(name) {
         return models.User.findAll({
             where: {name: name}
-        }).then(function (user){
+        }).then(function (user) {
             if (user.length === 0) return null;
             else return user[0];
         });
     };
 
     var createUser = function createUser(userInfo) {
-        return models.User.create({name: userInfo.name, email: userInfo.email});
+        return getUser(userInfo.name)
+            .then(function (user) {
+                if (!_.isNull(user)){
+                    throw new Error('User Exists');
+                }else{
+                    return models.User.create(userInfo);
+                }
+            });
     };
 
-    var deleteUser = function deleteUser(userName){
-
+    var deleteUser = function deleteUser(userName) {
         return models.User.find({where: {name: userName}})
-            .then(function (user){
-                if (!_.isNull(user)){
+            .then(function (user) {
+                if (!_.isNull(user)) {
                     return user.destroy();
                 }
             });

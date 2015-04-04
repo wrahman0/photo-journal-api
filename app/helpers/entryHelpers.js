@@ -20,8 +20,15 @@ module.exports = function (models) {
         return models.Entry.findAll();
     };
 
-    var createEntry = function createEntry() {
-
+    var createEntry = function createEntry(entryInfo) {
+        models.Entry.find({where: {title: entryInfo.title}})
+            .then(function (entry){
+                if (!_.isNull(entry)){
+                    throw new Error('Duplicate entry title exists');
+                }else{
+                    return models.Entry.create(entryInfo);
+                }
+            });
     };
 
     return {
