@@ -1,17 +1,18 @@
 "use strict";
 
 module.exports = function (sequelize, DataTypes) {
-    return sequelize.define('user', {
+    return sequelize.define('entry', {
         id: {type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true},
-        name: {type: DataTypes.STRING},
-        email: {type: DataTypes.STRING}
+        title: {type: DataTypes.STRING},
+        notes: {type: DataTypes.STRING},
+        tags: {type: DataTypes.STRING},
+        location: {type: DataTypes.STRING}
     }, {
         timestamps: true,
         classMethods: {
             associate: function (sequelize, models) {
-                models.User.hasMany(models.Entry);
+                models.Entry.belongsTo(models.User);
             }
-        },
-        indexes: [{fields: ['name'], method: 'BTREE'}]
+        }
     });
 };
