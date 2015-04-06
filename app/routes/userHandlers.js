@@ -3,6 +3,7 @@
 var _ = require('lodash');
 var httpErrors = require('restify').errors;
 var errors = require('../common/errors');
+var sendError = require('../common/sendError');
 
 module.exports = function (userHelpers) {
 
@@ -27,10 +28,7 @@ module.exports = function (userHelpers) {
                 res.send(201);
                 next();
             })
-            .catch(errors.UserExistsError, function () {
-                res.send(new httpErrors.ConflictError('User Exists'));
-                next();
-            });
+            .catch(errors.UserExistsError, sendError(httpErrors.ConflictError, next));
     };
 
     var del = function del(req, res, next) {

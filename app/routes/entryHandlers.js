@@ -1,8 +1,8 @@
 "use strict";
 
-var Promise = require('bluebird');
 var _ = require('lodash');
 var errors = require('../common/errors');
+var sendError = require('../common/sendError');
 
 module.exports = function (entryHelpers) {
 
@@ -19,10 +19,7 @@ module.exports = function (entryHelpers) {
             .then(function () {
                 res.send(201);
                 next();
-            }).catch(errors.DuplicateEntryError, function (err){
-                res.send(400, err);
-                next();
-            });
+            }).catch(errors.DuplicateEntryError, sendError(httpErrors.ResourceNotFoundError, next));
     };
 
     return {index: index, createEntry: createEntry};
