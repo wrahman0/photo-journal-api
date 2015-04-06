@@ -18,7 +18,7 @@ module.exports = function (userHelpers) {
         userHelpers.getUser(req.params.userName).then(function (user) {
             res.json(user);
             next();
-        });
+        }).catch(errors.UserNotFoundError, sendError(httpErrors.ResourceNotFoundError, next));
     };
 
     var createUser = function createUser(req, res, next) {

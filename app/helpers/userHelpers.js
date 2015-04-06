@@ -13,7 +13,7 @@ module.exports = function (models) {
         return models.User.findAll({
             where: {name: name}
         }).then(function (user) {
-            if (user.length === 0) return null;
+            if (user.length === 0) throw new errors.UserNotFoundError(name);
             else return user[0];
         });
     };
