@@ -2,6 +2,7 @@
 
 var _ = require('lodash');
 var httpErrors = require('restify').errors;
+var errors = require('../common/errors');
 
 module.exports = function (userHelpers) {
 
@@ -22,22 +23,23 @@ module.exports = function (userHelpers) {
     var createUser = function createUser(req, res, next) {
         var userInfo = _.pick(req.body, 'name', 'email');
         userHelpers.createUser(userInfo)
-            .then(function (){
+            .then(function () {
                 res.send(201);
                 next();
             })
-            .catch(function(){
+            .catch(errors.UserExistsError, function () {
                 res.send(new httpErrors.ConflictError('User Exists'));
                 next();
             });
     };
 
-    var del = function del(req, res, next){
+    var del = function del(req, res, next) {
         var name = req.params.userName;
-        userHelpers.deleteUser(name).then(function (){
-            res.send(204);
-            next();
-        });
+        userHelpers.deleteUser(name)
+            .then(function () {
+                res.send(204);
+                next();
+            });
     };
 
     return {index: index, view: view, createUser: createUser, del: del};

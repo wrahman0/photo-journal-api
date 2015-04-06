@@ -3,12 +3,18 @@
 var util = require("util");
 var _ = require("lodash");
 
-function UserExists(appKeyName) {
-    this.message = "Cannot resolve default AppId for AppKey: " + appKeyName;
+function UserExists(userName) {
+    this.message = "User exists: " + userName;
 }
 util.inherits(UserExists, Error);
 
+function DuplicateEntry(title) {
+    this.message = "Entry with the following title exists: " + title;
+}
+util.inherits(DuplicateEntry, Error);
+
 module.exports = {
-    UserExistsError: UserExists
+    UserExistsError: UserExists,
+    DuplicateEntryError: DuplicateEntry
 };
 

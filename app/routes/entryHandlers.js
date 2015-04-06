@@ -2,7 +2,7 @@
 
 var Promise = require('bluebird');
 var _ = require('lodash');
-var httpErrors = require('restify').errors;
+var errors = require('../common/errors');
 
 module.exports = function (entryHelpers) {
 
@@ -19,7 +19,7 @@ module.exports = function (entryHelpers) {
             .then(function () {
                 res.send(201);
                 next();
-            }).catch(function (err){
+            }).catch(errors.DuplicateEntryError, function (err){
                 res.send(400, err);
                 next();
             });

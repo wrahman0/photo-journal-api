@@ -1,7 +1,7 @@
 "use strict";
 
-var Promise = require('bluebird');
 var _ = require('lodash');
+var errors = require('../common/errors');
 
 module.exports = function (models) {
 
@@ -24,7 +24,7 @@ module.exports = function (models) {
         models.Entry.find({where: {title: entryInfo.title}})
             .then(function (entry){
                 if (!_.isNull(entry)){
-                    throw new Error('Duplicate entry title exists');
+                    throw new errors.DuplicateEntryError(entryInfo.title);
                 }else{
                     return models.Entry.create(entryInfo);
                 }

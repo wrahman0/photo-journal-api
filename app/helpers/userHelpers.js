@@ -1,6 +1,7 @@
 "use strict";
 
 var _ = require('lodash');
+var errors = require('../common/errors');
 
 module.exports = function (models) {
 
@@ -21,7 +22,7 @@ module.exports = function (models) {
         return getUser(userInfo.name)
             .then(function (user) {
                 if (!_.isNull(user)){
-                    throw new Error('User Exists');
+                    throw new errors.UserExistsError(userInfo.name);
                 }else{
                     return models.User.create(userInfo);
                 }
