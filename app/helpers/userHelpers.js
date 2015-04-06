@@ -20,12 +20,10 @@ module.exports = function (models) {
 
     var createUser = function createUser(userInfo) {
         return getUser(userInfo.name)
-            .then(function (user) {
-                if (!_.isNull(user)){
-                    throw new errors.UserExistsError(userInfo.name);
-                }else{
-                    return models.User.create(userInfo);
-                }
+            .then(function () {
+                throw new errors.UserExistsError(userInfo.name);
+            }).catch(errors.UserNotFoundError, function (){
+                return models.User.create(userInfo);
             });
     };
 
