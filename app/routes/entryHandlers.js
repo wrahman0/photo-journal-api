@@ -14,9 +14,7 @@ module.exports = function (entryHelpers) {
     };
 
     var createEntry = function createEntry(req, res, next) {
-
         var entryInfo = _.pick(req.body, 'title', 'notes', 'tags', 'location');
-
         entryHelpers.createEntry(entryInfo)
             .then(function () {
                 res.send(201);
@@ -25,7 +23,6 @@ module.exports = function (entryHelpers) {
                 res.send(400, err);
                 next();
             });
-
     };
 
     return {index: index, createEntry: createEntry};
