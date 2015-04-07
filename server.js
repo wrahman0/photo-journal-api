@@ -11,7 +11,29 @@ var userHelpers = require('./app/helpers/userHelpers')(models);
 var userHandlers = require('./app/routes/userHandlers')(userHelpers);
 
 var entryHelpers = require('./app/helpers/entryHelpers')(models);
-var entryHandlers= require('./app/routes/entryHandlers')(entryHelpers);
+var entryHandlers = require('./app/routes/entryHandlers')(entryHelpers);
+
+var passport = require('passport');
+var BasicStrategy = require('passport-http').BasicStrategy;
+var LocalStrategy = require('passport-local').Strategy;
+var FacebookStrategy = require('passport-facebook').Strategy;
+
+passport.use(new BasicStrategy(
+    function (username, password, done) {
+        findByUsername(username, function (err, user) {
+            if (err) {
+                return done(err);
+            }
+            if (!user) {
+                return done(null, false, {message: 'Incorrect username.'});
+            }
+            if (user.password !== password) {
+                return done(null, false, {message: 'Incorrect password.'});
+            }
+            return done(null, user);
+        });
+    }
+));
 
 var restifyLogger = new bunyan({
     name: 'restify',

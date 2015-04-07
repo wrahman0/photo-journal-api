@@ -1,6 +1,7 @@
 "use strict";
 
 var _ = require('lodash');
+var errors = require('../common/errors');
 
 module.exports = function (models) {
 
@@ -12,19 +13,17 @@ module.exports = function (models) {
         return models.User.findAll({
             where: {name: name}
         }).then(function (user) {
-            if (user.length === 0) return null;
+            if (user.length === 0) throw new errors.UserNotFoundError(name);
             else return user[0];
         });
     };
 
     var createUser = function createUser(userInfo) {
         return getUser(userInfo.name)
-            .then(function (user) {
-                if (!_.isNull(user)){
-                    throw new Error('User Exists');
-                }else{
-                    return models.User.create(userInfo);
-                }
+            .then(function () {
+                throw new errors.UserExistsError(userInfo.name);
+            }).catch(errors.UserNotFoundError, function (){
+                return models.User.create(userInfo);
             });
     };
 
