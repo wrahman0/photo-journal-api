@@ -6,6 +6,7 @@ var config = require('./config/default');
 var sequelize = require('./config/db')(config);
 var models = require('./app/models')(sequelize);
 var _ = require('lodash');
+var errors = require('./app/common/errors');
 
 var userHelpers = require('./app/helpers/userHelpers')(models);
 var userHandlers = require('./app/routes/userHandlers')(userHelpers);
@@ -13,25 +14,44 @@ var userHandlers = require('./app/routes/userHandlers')(userHelpers);
 var entryHelpers = require('./app/helpers/entryHelpers')(models);
 var entryHandlers = require('./app/routes/entryHandlers')(entryHelpers);
 
+var authenticationHelpers = require('./app/helpers/authenticationHelpers')(config);
+
 var passport = require('passport');
 var BasicStrategy = require('passport-http').BasicStrategy;
-var LocalStrategy = require('passport-local').Strategy;
-var FacebookStrategy = require('passport-facebook').Strategy;
+var BearerStrategy = require('passport-http-bearer').Strategy;
 
 passport.use(new BasicStrategy(
-    function (username, password, done) {
-        findByUsername(username, function (err, user) {
-            if (err) {
-                return done(err);
-            }
-            if (!user) {
-                return done(null, false, {message: 'Incorrect username.'});
-            }
-            if (user.password !== password) {
-                return done(null, false, {message: 'Incorrect password.'});
-            }
-            return done(null, user);
-        });
+    function (username, password, done){
+        // TODO: instead of getUserByFilter, make it getUserByToken. Expose less functionality
+        userHelpers.getUserByFilter({name: username})
+            .then(function(user){
+                var hashedPassword = authenticationHelpers.generateHashedPassword(password);
+                if (user.password !== hashedPassword){
+                    done(null, false);
+                }else{
+                    done(null, user);
+                }
+            })
+            .catch(errors.UserNotFoundError, function (err){
+                done(err);
+            });
+    }
+));
+
+passport.use(new BearerStrategy(
+    function (token, done){
+        // TODO: instead of getUserByFilter, make it getUserByToken. Expose less functionality
+        userHelpers.getUserByFilter({token: token})
+            .then(function(user){
+                if (_.isNull(user)){
+                    done(null, false);
+                }else{
+                    done(null, user);
+                }
+            })
+            .catch(errors.UserNotFoundError, function (err){
+                done(err);
+            });
     }
 ));
 
@@ -80,7 +100,7 @@ server.use(function (req, res, next) {
 
 // Routes
 server.get('/api/users/', userHandlers.index);
-server.get('/api/users/:userName', userHandlers.view);
+server.get('/api/users/:userName', passport.authenticate('basic', {session: false}), userHandlers.view);
 server.post('/api/users/register', userHandlers.createUser);
 server.del('/api/users/:userName', userHandlers.del);
 
