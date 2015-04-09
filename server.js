@@ -8,48 +8,48 @@ var models = require('./app/models')(sequelize);
 var _ = require('lodash');
 var errors = require('./app/common/errors');
 
+var authenticationHelpers = require('./app/helpers/authenticationHelpers')(config);
+
 var userHelpers = require('./app/helpers/userHelpers')(models);
-var userHandlers = require('./app/routes/userHandlers')(userHelpers);
+var userHandlers = require('./app/routes/userHandlers')(userHelpers, authenticationHelpers);
 
 var entryHelpers = require('./app/helpers/entryHelpers')(models);
 var entryHandlers = require('./app/routes/entryHandlers')(entryHelpers);
-
-var authenticationHelpers = require('./app/helpers/authenticationHelpers')(config);
 
 var passport = require('passport');
 var BasicStrategy = require('passport-http').BasicStrategy;
 var BearerStrategy = require('passport-http-bearer').Strategy;
 
 passport.use(new BasicStrategy(
-    function (username, password, done){
+    function (username, password, done) {
         // TODO: instead of getUserByFilter, make it getUserByToken. Expose less functionality
         userHelpers.getUserByFilter({name: username})
-            .then(function(user){
+            .then(function (user) {
                 var hashedPassword = authenticationHelpers.generateHashedPassword(password);
-                if (user.password !== hashedPassword){
+                if (user.password !== hashedPassword) {
                     done(null, false);
-                }else{
+                } else {
                     done(null, user);
                 }
             })
-            .catch(errors.UserNotFoundError, function (err){
+            .catch(errors.UserNotFoundError, function (err) {
                 done(err);
             });
     }
 ));
 
 passport.use(new BearerStrategy(
-    function (token, done){
+    function (token, done) {
         // TODO: instead of getUserByFilter, make it getUserByToken. Expose less functionality
         userHelpers.getUserByFilter({token: token})
-            .then(function(user){
-                if (_.isNull(user)){
+            .then(function (user) {
+                if (_.isNull(user)) {
                     done(null, false);
-                }else{
+                } else {
                     done(null, user);
                 }
             })
-            .catch(errors.UserNotFoundError, function (err){
+            .catch(errors.UserNotFoundError, function (err) {
                 done(err);
             });
     }
@@ -100,7 +100,7 @@ server.use(function (req, res, next) {
 
 // Routes
 server.get('/api/users/', userHandlers.index);
-server.get('/api/users/:userName', passport.authenticate('basic', {session: false}), userHandlers.view);
+server.get('/api/users/:userName', userHandlers.view);
 server.post('/api/users/register', userHandlers.createUser);
 server.del('/api/users/:userName', userHandlers.del);
 

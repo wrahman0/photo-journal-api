@@ -5,6 +5,7 @@ module.exports = function (sequelize, DataTypes) {
         id: {type: DataTypes.INTEGER, autoIncrement: true, primaryKey: true},
         name: {type: DataTypes.STRING},
         password: {type: DataTypes.STRING},
+        token: {type: DataTypes.STRING},
         email: {type: DataTypes.STRING}
     }, {
         timestamps: true,
@@ -13,6 +14,6 @@ module.exports = function (sequelize, DataTypes) {
                 models.User.hasMany(models.Entry, {as: 'Entries'});
             }
         },
-        indexes: [{fields: ['name', 'id'], method: 'BTREE'}]
+        indexes: [{fields: ['name', 'id', 'token'], method: 'BTREE'}]
     });
 };

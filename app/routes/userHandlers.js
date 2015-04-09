@@ -5,7 +5,7 @@ var httpErrors = require('restify').errors;
 var errors = require('../common/errors');
 var sendError = require('../common/sendError');
 
-module.exports = function (userHelpers) {
+module.exports = function (userHelpers, authenticationHelpers) {
 
     var index = function index(req, res, next) {
         userHelpers.getUsers().then(function (users) {
@@ -22,7 +22,13 @@ module.exports = function (userHelpers) {
     };
 
     var createUser = function createUser(req, res, next) {
-        var userInfo = _.pick(req.body, 'name', 'email');
+        var userInfo = _.pick(req.body, 'name', 'password', 'email');
+
+        userInfo.password = authenticationHelpers.generateHashedPassword(userInfo.password);
+        userInfo.token = authenticationHelpers.encodePayload(userInfo);
+
+        console.log('UserInfo: ', userInfo);
+
         userHelpers.createUser(userInfo)
             .then(function () {
                 res.send(201);
