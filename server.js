@@ -89,6 +89,7 @@ server.on('uncaughtException', function (req, res, route, error) {
 server.use(restify.acceptParser(server.acceptable));
 server.use(restify.queryParser());
 server.use(restify.bodyParser());
+server.use(passport.initialize());
 
 server.pre(restify.sanitizePath());
 server.use(function (req, res, next) {
@@ -100,7 +101,7 @@ server.use(function (req, res, next) {
 
 // Routes
 server.get('/api/users/', userHandlers.index);
-server.get('/api/users/:userName', userHandlers.view);
+server.get('/api/users/:userName', passport.authenticate('bearer', {session: false}), userHandlers.view);
 server.post('/api/users/register', userHandlers.createUser);
 server.del('/api/users/:userName', userHandlers.del);
 

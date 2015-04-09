@@ -16,6 +16,10 @@ module.exports = function (userHelpers, authenticationHelpers) {
 
     var view = function view(req, res, next) {
         userHelpers.getUser(req.params.userName).then(function (user) {
+            console.log(req.user, user);
+            if (req.user !== user){
+                return next(new httpErrors.NotAuthorizedError('Unauthorized request'));
+            }
             res.json(user);
             next();
         }).catch(errors.UserNotFoundError, sendError(httpErrors.ResourceNotFoundError, next));
