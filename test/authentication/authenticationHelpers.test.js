@@ -5,12 +5,20 @@ var expect = require('chai').expect;
 var authenticationHelpers = require('../../app/authentication/authenticationHelpers');
 var bcrypt = require('bcryptjs');
 
-describe.only('Authentication Helpers', function () {
+describe('Authentication Helpers', function () {
 
     var testVariables = {
         password: 'password',
         payload: {
             key: "value"
+        },
+        testUser:  {
+            dataValues: {
+                name: "test",
+                email: "test@email.com",
+                token: "testToken",
+                password: "testPassword1"
+            }
         }
     };
 
@@ -51,6 +59,49 @@ describe.only('Authentication Helpers', function () {
             var token = authenticationHelpers.encodePayload(testVariables.payload);
             var payload = authenticationHelpers.decodePayload(token);
             expect(_.isEqual(payload, testVariables.payload)).to.equal(true);
+            done();
+        });
+    });
+
+    describe('Validate two users', function () {
+        it ('should return true when the two users are the same', function(done){
+            expect(authenticationHelpers.validateUser(testVariables.testUser, testVariables.testUser)).to.equal(true);
+            done();
+        });
+
+        it ('should return false when the two users have different names', function(done){
+            var modified = {};
+            modified.dataValues = {};
+            _.assign(modified.dataValues, testVariables.dataValues);
+            modified.name = "";
+            expect(authenticationHelpers.validateUser(testVariables.testUser, modified)).to.equal(false);
+            done();
+        });
+
+        it ('should return false when the two users have different email', function(done){
+            var modified = {};
+            modified.dataValues = {};
+            _.assign(modified.dataValues, testVariables.dataValues);
+            modified.email = "";
+            expect(authenticationHelpers.validateUser(testVariables.testUser, modified)).to.equal(false);
+            done();
+        });
+
+        it ('should return false when the two users have different token', function(done){
+            var modified = {};
+            modified.dataValues = {};
+            _.assign(modified.dataValues, testVariables.dataValues);
+            modified.token = "";
+            expect(authenticationHelpers.validateUser(testVariables.testUser, modified)).to.equal(false);
+            done();
+        });
+
+        it ('should return false when the two users have different password', function(done){
+            var modified = {};
+            modified.dataValues = {};
+            _.assign(modified.dataValues, testVariables.dataValues);
+            modified.password = "";
+            expect(authenticationHelpers.validateUser(testVariables.testUser, modified)).to.equal(false);
             done();
         });
     });

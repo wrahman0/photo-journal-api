@@ -7,7 +7,6 @@ var server = require('../../server');
 var sequelize = server.db.sequelize;
 var models = server.db.models;
 var _ = require('lodash');
-
 var expect = require('chai').expect;
 
 describe('API - User Handler', function () {
@@ -20,7 +19,7 @@ describe('API - User Handler', function () {
     describe('GET /api/users/', function () {
 
         var getEndpoint = function () {
-            return '/api/users/';
+            return '/v1/users/';
         };
 
         describe('Users exist', function (){
@@ -84,7 +83,7 @@ describe('API - User Handler', function () {
     describe('GET /api/users/:userName', function () {
 
         var getEndpoint = function (userName) {
-            return '/api/users/' + userName;
+            return '/v1/users/' + userName;
         };
 
         describe('Users exist', function () {
