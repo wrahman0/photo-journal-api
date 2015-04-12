@@ -3,6 +3,7 @@
 var BasicStrategy = require('passport-http').BasicStrategy;
 var BearerStrategy = require('passport-http-bearer').Strategy;
 var errors = require('../common/errors');
+var httpErrors = require('restify').errors;
 var _ = require('lodash');
 
 module.exports = function (userHelpers, authenticationHelpers){
@@ -18,8 +19,8 @@ module.exports = function (userHelpers, authenticationHelpers){
                         done(null, false);
                     }
                 })
-                .catch(errors.UserNotFoundError, function (err) {
-                    done(err);
+                .catch(errors.UserNotFoundError, function (){
+                    done(new httpErrors.InvalidCredentialsError("Unauthorized request"));
                 });
         }
     );
@@ -35,8 +36,8 @@ module.exports = function (userHelpers, authenticationHelpers){
                         done(null, user);
                     }
                 })
-                .catch(errors.UserNotFoundError, function (err) {
-                    done(err);
+                .catch(errors.UserNotFoundError, function (){
+                    done(new httpErrors.InvalidCredentialsError("Unauthorized request"));
                 });
         }
     );
