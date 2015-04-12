@@ -30,7 +30,7 @@ module.exports = function (userHelpers, authenticationHelpers) {
         userHelpers.createUser(userInfo)
             .then(function (user) {
                 console.log('Created: ', user.dataValues);
-                res.send(201);
+                res.json(200, user);
                 next();
             })
             .catch(errors.UserExistsError, sendError(httpErrors.ConflictError, next));
