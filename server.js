@@ -6,54 +6,22 @@ var config = require('./config/default');
 var sequelize = require('./config/db')(config);
 var models = require('./app/models')(sequelize);
 var _ = require('lodash');
-var errors = require('./app/common/errors');
 
-var authenticationHelpers = require('./app/helpers/authenticationHelpers')(config);
+var authenticationHelpers = require('./app/authentication/authenticationHelpers')(config);
 
-var userHelpers = require('./app/helpers/userHelpers')(models);
+var userHelpers = require('./app/helpers/userHelpers')(models, authenticationHelpers);
 var userHandlers = require('./app/routes/userHandlers')(userHelpers, authenticationHelpers);
 
 var entryHelpers = require('./app/helpers/entryHelpers')(models);
 var entryHandlers = require('./app/routes/entryHandlers')(entryHelpers);
 
 var passport = require('passport');
-var BasicStrategy = require('passport-http').BasicStrategy;
-var BearerStrategy = require('passport-http-bearer').Strategy;
+var strategies = require('./app/authentication/strategies')(userHelpers, authenticationHelpers);
 
-passport.use(new BasicStrategy(
-    function (username, password, done) {
-        // TODO: instead of getUserByFilter, make it getUserByToken. Expose less functionality
-        userHelpers.getUserByFilter({name: username})
-            .then(function (user) {
-                var hashedPassword = authenticationHelpers.generateHashedPassword(password);
-                if (user.password !== hashedPassword) {
-                    done(null, false);
-                } else {
-                    done(null, user);
-                }
-            })
-            .catch(errors.UserNotFoundError, function (err) {
-                done(err);
-            });
-    }
-));
 
-passport.use(new BearerStrategy(
-    function (token, done) {
-        // TODO: instead of getUserByFilter, make it getUserByToken. Expose less functionality
-        userHelpers.getUserByFilter({token: token})
-            .then(function (user) {
-                if (_.isNull(user)) {
-                    done(null, false);
-                } else {
-                    done(null, user);
-                }
-            })
-            .catch(errors.UserNotFoundError, function (err) {
-                done(err);
-            });
-    }
-));
+// TODO: v2.x - Make these injectable for mocking purposes
+passport.use(strategies.BasicStrategy);
+passport.use(strategies.BearerStrategy);
 
 var restifyLogger = new bunyan({
     name: 'restify',
@@ -100,13 +68,12 @@ server.use(function (req, res, next) {
 });
 
 // Routes
-server.get('/api/users/', userHandlers.index);
-server.get('/api/users/:userName', passport.authenticate('bearer', {session: false}), userHandlers.view);
-server.post('/api/users/register', userHandlers.createUser);
-server.del('/api/users/:userName', userHandlers.del);
+server.get('/v1/users/:userName', passport.authenticate(['basic', 'bearer'], {session: false}), userHandlers.view);
+server.post('/v1/users/register', userHandlers.createUser);
+server.del('/v1/users/:userName', userHandlers.del);
 
-server.get('/api/entries/', entryHandlers.index);
-server.post('/api/entries/', entryHandlers.createEntry);
+server.get('/v1/entries/', entryHandlers.index);
+server.post('/v1/entries/', entryHandlers.createEntry);
 
 sequelize.authenticate().then(function () {
     console.log('Connection has been established successfully');

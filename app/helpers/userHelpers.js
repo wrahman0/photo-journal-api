@@ -2,9 +2,8 @@
 
 var _ = require('lodash');
 var errors = require('../common/errors');
-var passwordHash = require('password-hash');
 
-module.exports = function (models) {
+module.exports = function (models, authenticationHelpers) {
 
     var getUsers = function getUsers() {
         return models.User.findAll();
@@ -36,8 +35,8 @@ module.exports = function (models) {
                 throw new errors.UserExistsError(userInfo.name);
             }).catch(errors.UserNotFoundError, function (){
                 // TODO: Validate params
-                userInfo.password = passwordHash.generate(userInfo.password);
-                return models.User.create(userInfo);
+                userInfo.password = authenticationHelpers.generateHashedPassword(userInfo.password);
+                return models.User.create({name: userInfo.name, password: userInfo.password, email: userInfo.email, token: userInfo.token});
             });
     };
 

@@ -16,9 +16,8 @@ module.exports = function (userHelpers, authenticationHelpers) {
 
     var view = function view(req, res, next) {
         userHelpers.getUser(req.params.userName).then(function (user) {
-            console.log(req.user, user);
-            if (req.user !== user){
-                return next(new httpErrors.NotAuthorizedError('Unauthorized request'));
+            if (!authenticationHelpers.validateUser(req.user, user)){
+                return next(new httpErrors.InvalidCredentialsError('Unauthorized request'));
             }
             res.json(user);
             next();
@@ -27,14 +26,10 @@ module.exports = function (userHelpers, authenticationHelpers) {
 
     var createUser = function createUser(req, res, next) {
         var userInfo = _.pick(req.body, 'name', 'password', 'email');
-
-        userInfo.password = authenticationHelpers.generateHashedPassword(userInfo.password);
         userInfo.token = authenticationHelpers.encodePayload(userInfo);
-
-        console.log('UserInfo: ', userInfo);
-
         userHelpers.createUser(userInfo)
-            .then(function () {
+            .then(function (user) {
+                console.log('Created: ', user.dataValues);
                 res.send(201);
                 next();
             })
