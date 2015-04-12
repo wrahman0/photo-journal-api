@@ -32,7 +32,6 @@ describe.only('Authentication Helpers', function () {
         });
 
         it ('should return false when the plaintext password doesnt match hash', function(done){
-            var hash = authenticationHelpers.generateHashedPassword(testVariables.password);
             expect(authenticationHelpers.isValidPassword(testVariables.password, '')).to.equal(false);
             done();
         });
