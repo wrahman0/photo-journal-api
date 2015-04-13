@@ -38,11 +38,17 @@ module.exports = function (userHelpers, authenticationHelpers) {
 
     var del = function del(req, res, next) {
         var name = req.params.userName;
-        userHelpers.deleteUser(name)
-            .then(function () {
-                res.send(204);
-                next();
-            });
+        userHelpers.getUser(name).then(function (user){
+            if (!authenticationHelpers.validateUser(req.user, user)){
+                return next(new httpErrors.InvalidCredentialsError('Unauthorized request'));
+            }
+            userHelpers.deleteUser(name)
+                .then(function () {
+                    res.send(204);
+                    next();
+                });
+        });
+
     };
 
     return {index: index, view: view, createUser: createUser, del: del};

@@ -70,7 +70,7 @@ server.use(function (req, res, next) {
 // Routes
 server.get('/v1/users/:userName', passport.authenticate(['basic', 'bearer'], {session: false}), userHandlers.view);
 server.post('/v1/users/register', userHandlers.createUser);
-server.del('/v1/users/:userName', userHandlers.del);
+server.del('/v1/users/:userName', passport.authenticate(['basic', 'bearer'], {session: false}), userHandlers.del);
 
 server.get('/v1/entries/', entryHandlers.index);
 server.post('/v1/entries/', entryHandlers.createEntry);
