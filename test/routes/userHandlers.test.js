@@ -12,27 +12,48 @@ var expect = require('chai').expect;
 describe('API - User Handler', function () {
     var api = request(server);
 
+    var getBearerHeader = function (token){
+        return "Bearer " + token;
+    };
+
     before(function () {
         return sequelize.sync({force: true});
     });
 
-    describe('GET /api/users/', function () {
+    describe('GET /v1/users/', function () {
 
         var getEndpoint = function () {
             return '/v1/users/';
         };
 
-        describe('Users exist', function (){
+        var postEndpoint = function (){
+            return '/v1/users/register'
+        };
 
-            var test_info = {
-                name: "test-user",
-                email: "test@user.com"
+        describe.only('Users exist', function (){
+
+            var testVariables = {
+                testUser: {
+                    name: "test-user",
+                    email: "test@user.com",
+                    password: "test-password"
+                },
+                responseToken: null
             };
 
-            before(function () {
-                return Promise.all([
-                    models.User.create(test_info)
-                ]);
+            before(function (done) {
+                // TODO: Modify this to directly add it to the db instead of adding through the api call
+                api.post(postEndpoint())
+                    .send(testVariables.testUser)
+                    .expect('Content-Type', /json/)
+                    .expect(200)
+                    .end(function (err, res){
+                        if (err) done(err);
+                        else{
+                            testVariables.responseToken = res.body.token;
+                            done();
+                        }
+                    });
             });
 
             after(function(){
@@ -41,24 +62,26 @@ describe('API - User Handler', function () {
 
             it('should return an array with all the user info when users exist', function (done) {
                 api.get(getEndpoint())
+                    .set("Authorization", getBearerHeader(testVariables.responseToken))
                     .expect('Content-Type', /json/)
                     .expect(200)
                     .expect(function(res){
                         expect(res.body[0]).to.have.all.keys('name', 'email', 'createdAt', 'updatedAt', 'id');
-                    })
-                    .end(done);
+                        done();
+                    });
             });
 
             it('should return an array with all the user info when users exist', function (done) {
                 api.get(getEndpoint())
+                    .set("Authorization", getBearerHeader(testVariables.responseToken))
                     .expect('Content-Type', /json/)
                     .expect(200)
                     .expect(function(res){
                         expect(res.body[0]).to.have.all.keys('name', 'email', 'createdAt', 'updatedAt', 'id');
                         expect(res.body[0]).to.have.property('name', test_info.name);
                         expect(res.body[0]).to.have.property('email', test_info.email);
-                    })
-                    .end(done);
+                        done();
+                    });
             });
 
 
