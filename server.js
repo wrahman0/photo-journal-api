@@ -72,7 +72,7 @@ server.get('/v1/users/:userName', passport.authenticate(['basic', 'bearer'], {se
 server.post('/v1/users/register', userHandlers.createUser);
 server.del('/v1/users/:userName', passport.authenticate(['basic', 'bearer'], {session: false}), userHandlers.del);
 
-server.get('/v1/entries/', entryHandlers.index);
+server.get('/v1/entries/', passport.authenticate(['basic', 'bearer'], {session: false}), entryHandlers.index);
 server.post('/v1/entries/', entryHandlers.createEntry);
 
 sequelize.authenticate().then(function () {

@@ -7,10 +7,8 @@ var sendError = require('../common/sendError');
 module.exports = function (entryHelpers) {
 
     var index = function index(req, res, next) {
-        entryHelpers.getEntries().then(function (entries) {
-            res.json(entries);
-            next();
-        });
+        res.json(req.user.entries);
+        next();
     };
 
     var createEntry = function createEntry(req, res, next) {
