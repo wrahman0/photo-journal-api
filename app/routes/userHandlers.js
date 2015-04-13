@@ -15,25 +15,23 @@ module.exports = function (userHelpers) {
     };
 
     var view = function view(req, res, next) {
-        userHelpers.getUser(req.params.userName).then(function (user) {
-            res.json(user);
-            next();
-        }).catch(errors.UserNotFoundError, sendError(httpErrors.ResourceNotFoundError, next));
+        res.json(200, req.user);
+        next();
     };
 
     var createUser = function createUser(req, res, next) {
-        var userInfo = _.pick(req.body, 'name', 'email');
+        var userInfo = _.pick(req.body, 'name', 'password', 'email');
+        // TODO: Why is this exposed to the handler?
         userHelpers.createUser(userInfo)
-            .then(function () {
-                res.send(201);
+            .then(function (user) {
+                res.json(200, user);
                 next();
             })
             .catch(errors.UserExistsError, sendError(httpErrors.ConflictError, next));
     };
 
     var del = function del(req, res, next) {
-        var name = req.params.userName;
-        userHelpers.deleteUser(name)
+        userHelpers.deleteUser(req.user.name)
             .then(function () {
                 res.send(204);
                 next();

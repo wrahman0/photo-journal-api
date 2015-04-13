@@ -7,33 +7,21 @@ var sequelize = require('./config/db')(config);
 var models = require('./app/models')(sequelize);
 var _ = require('lodash');
 
-var userHelpers = require('./app/helpers/userHelpers')(models);
+var authenticationHelpers = require('./app/authentication/authenticationHelpers')(config);
+
+var userHelpers = require('./app/helpers/userHelpers')(models, authenticationHelpers);
 var userHandlers = require('./app/routes/userHandlers')(userHelpers);
 
 var entryHelpers = require('./app/helpers/entryHelpers')(models);
 var entryHandlers = require('./app/routes/entryHandlers')(entryHelpers);
 
 var passport = require('passport');
-var BasicStrategy = require('passport-http').BasicStrategy;
-var LocalStrategy = require('passport-local').Strategy;
-var FacebookStrategy = require('passport-facebook').Strategy;
+var strategies = require('./app/authentication/strategies')(userHelpers, authenticationHelpers);
 
-passport.use(new BasicStrategy(
-    function (username, password, done) {
-        findByUsername(username, function (err, user) {
-            if (err) {
-                return done(err);
-            }
-            if (!user) {
-                return done(null, false, {message: 'Incorrect username.'});
-            }
-            if (user.password !== password) {
-                return done(null, false, {message: 'Incorrect password.'});
-            }
-            return done(null, user);
-        });
-    }
-));
+
+// TODO: v2.x - Make these injectable for mocking purposes
+passport.use(strategies.BasicStrategy);
+passport.use(strategies.BearerStrategy);
 
 var restifyLogger = new bunyan({
     name: 'restify',
@@ -69,6 +57,7 @@ server.on('uncaughtException', function (req, res, route, error) {
 server.use(restify.acceptParser(server.acceptable));
 server.use(restify.queryParser());
 server.use(restify.bodyParser());
+server.use(passport.initialize());
 
 server.pre(restify.sanitizePath());
 server.use(function (req, res, next) {
@@ -79,13 +68,12 @@ server.use(function (req, res, next) {
 });
 
 // Routes
-server.get('/api/users/', userHandlers.index);
-server.get('/api/users/:userName', userHandlers.view);
-server.post('/api/users/register', userHandlers.createUser);
-server.del('/api/users/:userName', userHandlers.del);
+server.get('/v1/users/:userName', passport.authenticate(['basic', 'bearer'], {session: false}), userHandlers.view);
+server.post('/v1/users/register', userHandlers.createUser);
+server.del('/v1/users/:userName', passport.authenticate(['basic', 'bearer'], {session: false}), userHandlers.del);
 
-server.get('/api/entries/', entryHandlers.index);
-server.post('/api/entries/', entryHandlers.createEntry);
+server.get('/v1/entries/', entryHandlers.index);
+server.post('/v1/entries/', entryHandlers.createEntry);
 
 sequelize.authenticate().then(function () {
     console.log('Connection has been established successfully');
