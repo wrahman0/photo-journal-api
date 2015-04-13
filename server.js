@@ -73,7 +73,7 @@ server.post('/v1/users/register', userHandlers.createUser);
 server.del('/v1/users/:userName', passport.authenticate(['basic', 'bearer'], {session: false}), userHandlers.del);
 
 server.get('/v1/entries/', passport.authenticate(['basic', 'bearer'], {session: false}), entryHandlers.index);
-server.post('/v1/entries/', entryHandlers.createEntry);
+server.post('/v1/entries/', passport.authenticate(['basic', 'bearer'], {session: false}), entryHandlers.createEntry);
 
 sequelize.authenticate().then(function () {
     console.log('Connection has been established successfully');
