@@ -35,6 +35,7 @@ module.exports = function (models, authenticationHelpers) {
                 throw new errors.UserExistsError(userInfo.name);
             }).catch(errors.UserNotFoundError, function (){
                 // TODO: Validate params
+                userInfo.token = authenticationHelpers.encodePayload(userInfo);
                 userInfo.password = authenticationHelpers.generateHashedPassword(userInfo.password);
                 return models.User.create({name: userInfo.name, password: userInfo.password, email: userInfo.email, token: userInfo.token});
             });

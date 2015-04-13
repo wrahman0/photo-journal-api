@@ -10,7 +10,7 @@ var _ = require('lodash');
 var authenticationHelpers = require('./app/authentication/authenticationHelpers')(config);
 
 var userHelpers = require('./app/helpers/userHelpers')(models, authenticationHelpers);
-var userHandlers = require('./app/routes/userHandlers')(userHelpers, authenticationHelpers);
+var userHandlers = require('./app/routes/userHandlers')(userHelpers);
 
 var entryHelpers = require('./app/helpers/entryHelpers')(models);
 var entryHandlers = require('./app/routes/entryHandlers')(entryHelpers);
