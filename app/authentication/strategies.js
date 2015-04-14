@@ -6,7 +6,7 @@ var errors = require('../common/errors');
 var httpErrors = require('restify').errors;
 var _ = require('lodash');
 
-module.exports = function (userHelpers, authenticationHelpers){
+module.exports = function (userHelpers, authenticationHelpers) {
 
     // Separated the logic because it will be easier to test
 
@@ -20,11 +20,11 @@ module.exports = function (userHelpers, authenticationHelpers){
                     throw new errors.UserNotFoundError(user.name);
                 }
             })
-            .catch(errors.UserNotFoundError, function (){
+            .catch(errors.UserNotFoundError, function () {
                 done(new httpErrors.InvalidCredentialsError("Unauthorized request"));
             });
     };
-    
+
     var BearerStrategyLogic = function (token, done) {
         // TODO: instead of getUserByFilter, make it getUserByToken. Expose less functionality
         userHelpers.getUserByFilter({token: token})
@@ -35,7 +35,7 @@ module.exports = function (userHelpers, authenticationHelpers){
                     done(null, user);
                 }
             })
-            .catch(errors.UserNotFoundError, function (){
+            .catch(errors.UserNotFoundError, function () {
                 done(new httpErrors.InvalidCredentialsError("Unauthorized request"));
             });
     };

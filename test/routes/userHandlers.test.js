@@ -22,7 +22,7 @@ describe('API - User Handler', function () {
             return '/v1/users/';
         };
 
-        describe('Users exist', function (){
+        describe('Users exist', function () {
 
             var test_info = {
                 name: "test-user",
@@ -35,7 +35,7 @@ describe('API - User Handler', function () {
                 ]);
             });
 
-            after(function(){
+            after(function () {
                 return sequelize.sync({force: true});
             });
 
@@ -43,7 +43,7 @@ describe('API - User Handler', function () {
                 api.get(getEndpoint())
                     .expect('Content-Type', /json/)
                     .expect(200)
-                    .expect(function(res){
+                    .expect(function (res) {
                         expect(res.body[0]).to.have.all.keys('name', 'email', 'createdAt', 'updatedAt', 'id');
                     })
                     .end(done);
@@ -53,7 +53,7 @@ describe('API - User Handler', function () {
                 api.get(getEndpoint())
                     .expect('Content-Type', /json/)
                     .expect(200)
-                    .expect(function(res){
+                    .expect(function (res) {
                         expect(res.body[0]).to.have.all.keys('name', 'email', 'createdAt', 'updatedAt', 'id');
                         expect(res.body[0]).to.have.property('name', test_info.name);
                         expect(res.body[0]).to.have.property('email', test_info.email);
@@ -64,9 +64,9 @@ describe('API - User Handler', function () {
 
         });
 
-        describe('Users does not exist', function (){
+        describe('Users does not exist', function () {
 
-            after(function(){
+            after(function () {
                 return sequelize.sync({force: true});
             });
 
