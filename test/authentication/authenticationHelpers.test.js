@@ -2,7 +2,7 @@
 
 var _ = require('lodash');
 var expect = require('chai').expect;
-var authenticationHelpers = require('../../app/authentication/authenticationHelpers');
+var authenticationHelpers = require('../../app/common/authentication');
 var bcrypt = require('bcryptjs');
 
 describe('Authentication Helpers', function () {

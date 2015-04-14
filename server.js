@@ -7,7 +7,7 @@ var sequelize = require('./config/db')(config);
 var models = require('./app/models')(sequelize);
 var _ = require('lodash');
 
-var authenticationHelpers = require('./app/authentication/authenticationHelpers')(config);
+var authenticationHelpers = require('./app/common/authentication')(config);
 
 var userHelpers = require('./app/helpers/userHelpers')(models, authenticationHelpers);
 var userHandlers = require('./app/routes/userHandlers')(userHelpers);
