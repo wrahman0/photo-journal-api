@@ -9,8 +9,6 @@ var models = server.db.models;
 var _ = require('lodash');
 var expect = require('chai').expect;
 
-var getBasicAuthHeader = require('../util').getBasicAuthHeader;
-
 describe('API - User Handler', function () {
     var api = request(server);
 
@@ -47,7 +45,7 @@ describe('API - User Handler', function () {
 
         it('should return a user object when the credentials are valid', function (done) {
             api.get(getEndpoint())
-                .set("Authorization", getBasicAuthHeader(test_info.name, test_info.unHashedPassword))
+                .auth(test_info.name, test_info.unHashedPassword)
                 .expect('Content-Type', /json/)
                 .expect(200)
                 .expect(function (res) {
@@ -58,14 +56,14 @@ describe('API - User Handler', function () {
 
         it('should return 401 when the username is invalid', function (done) {
             api.get(getEndpoint())
-                .set("Authorization", getBasicAuthHeader('invalid', test_info.unHashedPassword))
+                .auth('invalid', test_info.unHashedPassword)
                 .expect('Content-Type', /json/)
                 .expect(401, done);
         });
 
         it('should return 401 when the password is invalid', function (done) {
             api.get(getEndpoint())
-                .set("Authorization", getBasicAuthHeader(test_info.name, 'invalid'))
+                .auth(test_info.name, 'invalid')
                 .expect('Content-Type', /json/)
                 .expect(401, done);
         });
