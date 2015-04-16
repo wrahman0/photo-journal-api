@@ -125,4 +125,51 @@ describe('API - User Handler', function () {
                 .expect(400, done);
         });
     });
+
+    describe('DEL /v1/users/', function () {
+
+        var getEndpoint = function () {
+            return '/v1/users/';
+        };
+
+        var testVariables = {
+            hashedPassword: "$2a$10$rk0xPfrcfLkUwPyUuWBqpeE6FEX1WqrT.uVq6zbLnjNuJbKl3UhSO",
+            name: "test-user",
+            email: "test@user.com",
+            unHashedPassword: "password",
+            token: "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJuYW1lIjoidGVzdDEiLCJwYXNzd29yZCI6InBhc3N3b3JkIiwiZW1haWwiOiJ3cmFobWFuMEBnbWFpbC5jb20ifQ.dEfp5Gwe7t4ERDWu9T5KMOgKU8VM1emL6JMC8VPH4mY"
+        };
+
+        beforeEach(function () {
+            return models.User.create({
+                name: testVariables.name,
+                password: testVariables.hashedPassword,
+                email: testVariables.email,
+                token: testVariables.token
+            });
+        });
+
+        afterEach(function () {
+            return sequelize.sync({force: true});
+        });
+
+        it('should delete a user when valid credentials are sent', function(done){
+            api.del(getEndpoint())
+                .auth(testVariables.name, testVariables.unHashedPassword)
+                .expect(204)
+                .end(function(){
+                    models.User.find({where:{name: testVariables.name}})
+                        .then(function(user){
+                            expect(user).to.equal(null);
+                            done();
+                        })
+                });
+        });
+
+        it('should delete a user when valid credentials are sent', function(done){
+            api.del(getEndpoint())
+                .auth('invalid', testVariables.unHashedPassword)
+                .expect(401, done);
+        });
+    });
 });
