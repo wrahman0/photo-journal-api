@@ -26,7 +26,7 @@ describe('API - User Handler', function () {
             return '/v1/users/';
         };
 
-        var test_info = {
+        var testVariables = {
             hashedPassword: "$2a$10$rk0xPfrcfLkUwPyUuWBqpeE6FEX1WqrT.uVq6zbLnjNuJbKl3UhSO",
             name: "test-user",
             email: "test@user.com",
@@ -36,98 +36,93 @@ describe('API - User Handler', function () {
 
         before(function () {
             return models.User.create({
-                name: test_info.name,
-                password: test_info.hashedPassword,
-                email: test_info.email,
-                token: test_info.token
+                name: testVariables.name,
+                password: testVariables.hashedPassword,
+                email: testVariables.email,
+                token: testVariables.token
             });
         });
 
         it('should return a user object when the credentials are valid', function (done) {
             api.get(getEndpoint())
-                .auth(test_info.name, test_info.unHashedPassword)
+                .auth(testVariables.name, testVariables.unHashedPassword)
                 .expect('Content-Type', /json/)
                 .expect(200)
                 .expect(function (res) {
                     expect(res.body).to.have.all.keys('name', 'email', 'createdAt', 'updatedAt', 'id', 'password', 'token', 'entries');
+                    expect(res.body.name).to.equal(testVariables.name);
+                    expect(res.body.password).to.equal(testVariables.hashedPassword);
+                    expect(res.body.email).to.equal(testVariables.email);
                 })
                 .end(done);
         });
 
         it('should return 401 when the username is invalid', function (done) {
             api.get(getEndpoint())
-                .auth('invalid', test_info.unHashedPassword)
+                .auth('invalid', testVariables.unHashedPassword)
                 .expect('Content-Type', /json/)
                 .expect(401, done);
         });
 
         it('should return 401 when the password is invalid', function (done) {
             api.get(getEndpoint())
-                .auth(test_info.name, 'invalid')
+                .auth(testVariables.name, 'invalid')
                 .expect('Content-Type', /json/)
                 .expect(401, done);
         });
     });
 
-    //describe('GET /api/users/:userName', function () {
-    //
-    //    var getEndpoint = function (userName) {
-    //        return '/v1/users/' + userName;
-    //    };
-    //
-    //    describe('Users exist', function () {
-    //
-    //        var test_info = {
-    //            name: "test-user",
-    //            email: "test@user.com"
-    //        };
-    //
-    //        before(function () {
-    //            return Promise.all([
-    //                models.User.create(test_info)
-    //            ]);
-    //        });
-    //
-    //        after(function () {
-    //            return sequelize.sync({force: true});
-    //        });
-    //
-    //        it('should return user object when the user exists', function (done) {
-    //            api.get(getEndpoint(test_info.name))
-    //                .expect('Content-Type', /json/)
-    //                .expect(200)
-    //                .expect(function (res) {
-    //                    expect(res.body).to.have.all.keys('name', 'email', 'createdAt', 'updatedAt', 'id');
-    //                    expect(res.body).to.have.property('name', test_info.name);
-    //                    expect(res.body).to.have.property('email', test_info.email);
-    //                })
-    //                .end(done);
-    //        });
-    //    });
-    //
-    //    describe('User does not exist', function () {
-    //
-    //        var test_info = {
-    //            name: "test-user",
-    //            email: "test@user.com"
-    //        };
-    //
-    //        before(function () {
-    //            return Promise.all([
-    //                models.User.create(test_info)
-    //            ]);
-    //        });
-    //
-    //        after(function () {
-    //            return sequelize.sync({force: true});
-    //        });
-    //
-    //        it('should throw error when the user does not exist', function (done) {
-    //            api.get(getEndpoint('invalid'))
-    //                .expect('Content-Type', /json/)
-    //                .expect(404)
-    //                .end(done);
-    //        });
-    //    });
-    //});
+    describe('POST /v1/users/register', function () {
+
+        var testVariables = {
+            userObject: {
+                name: "test1",
+                email: "test@user.com",
+                password: "password"
+            }
+        };
+
+        var getEndpoint = function () {
+            return '/v1/users/register';
+        };
+
+        it('should register a user when the correct parameters are sent', function(done){
+             api.post(getEndpoint())
+                 .send(testVariables.userObject)
+                 .expect('Content-Type', /json/)
+                 .expect(200)
+                 .end(function(){
+                     models.User.find({where:{name:testVariables.userObject.name}})
+                         .then(function (user){
+                             expect(user).to.not.equal(null);
+                             expect(user.dataValues).to.have.all.keys('name', 'email', 'createdAt', 'updatedAt', 'id', 'password', 'token');
+                             expect(user.name).to.equal(testVariables.userObject.name);
+                             expect(user.email).to.equal(testVariables.userObject.email);
+                             expect(user.password).to.not.equal(testVariables.userObject.password);
+                             done();
+                         });
+                 })
+        });
+
+        it('should send error when the username are not sent', function(done){
+            api.post(getEndpoint())
+                .send(_.pick(testVariables.userObject, ['password', 'email']))
+                .expect('Content-Type', /json/)
+                .expect(400, done);
+        });
+
+        it('should send error when the email are not sent', function(done){
+            api.post(getEndpoint())
+                .send(_.pick(testVariables.userObject, ['password', 'name']))
+                .expect('Content-Type', /json/)
+                .expect(400, done);
+        });
+
+        it('should send error when the password are not sent', function(done){
+            api.post(getEndpoint())
+                .send(_.pick(testVariables.userObject, ['name', 'email']))
+                .expect('Content-Type', /json/)
+                .expect(400, done);
+        });
+    });
 });
