@@ -74,6 +74,7 @@ server.del('/v1/users/', passport.authenticate(['basic', 'bearer'], {session: fa
 
 server.get('/v1/entries/', passport.authenticate(['basic', 'bearer'], {session: false}), entryHandlers.index);
 server.post('/v1/entries/', passport.authenticate(['basic', 'bearer'], {session: false}), entryHandlers.createEntry);
+server.del('/v1/entries/:id', passport.authenticate(['basic', 'bearer'], {session: false}), entryHandlers.del);
 
 sequelize.authenticate().then(function () {
     console.log('Connection has been established successfully');

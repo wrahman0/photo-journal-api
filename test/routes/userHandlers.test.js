@@ -1,7 +1,6 @@
 "use strict";
 
 var request = require('supertest');
-var Promise = require('bluebird');
 
 var server = require('../../server');
 var sequelize = server.db.sequelize;

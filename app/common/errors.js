@@ -28,11 +28,17 @@ function MissingArgument(argName) {
 }
 util.inherits(MissingArgument, Error);
 
+function InvalidEntry(id) {
+    this.message = "Entry with id " + id + " does not exist";
+}
+util.inherits(InvalidEntry, Error);
+
 module.exports = {
     UserExistsError: UserExists,
     DuplicateEntryError: DuplicateEntry,
     UserNotFoundError: UserNotFound,
     ValidationError: Validation,
-    MissingArgumentError: MissingArgument
+    MissingArgumentError: MissingArgument,
+    InvalidEntryError: InvalidEntry
 };
 

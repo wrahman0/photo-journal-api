@@ -10,6 +10,17 @@ module.exports = function (models) {
         return user.entries;
     };
 
+    var getEntryById = function getEntryById(id) {
+        return models.Entry.find({where: {id: id}})
+            .then(function(entry){
+                if (entry === null){
+                    throw new errors.InvalidEntryError(id);
+                }else{
+                    return entry;
+                }
+            });
+    };
+
     var createEntry = function createEntry(entryInfo, user) {
         return user.getEntries({where: {title: entryInfo.title}})
             .then(function (entry) {
@@ -29,8 +40,24 @@ module.exports = function (models) {
             });
     };
 
+    var deleteEntry = function deleteEntry(entryId, user) {
+        return user.getEntries({where: {id: entryId}})
+            .then(function (entry) {
+                console.log(entry);
+                if (_.isEmpty(entry)) {
+                    throw new errors.InvalidEntryError(entryId);
+                } else {
+                    return getEntryById(entryId)
+                        .then(function(entry){
+                            return entry.destroy();
+                        });
+                }
+            })
+    };
+
     return {
         getEntries: getEntries,
-        createEntry: createEntry
+        createEntry: createEntry,
+        deleteEntry: deleteEntry
     };
 };

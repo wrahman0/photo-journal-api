@@ -21,5 +21,17 @@ module.exports = function (entryHelpers) {
             }).catch(errors.DuplicateEntryError, sendError(httpErrors.ConflictError, next));
     };
 
-    return {index: index, createEntry: createEntry};
+    var del = function del (req, res, next){
+        entryHelpers.deleteEntry(req.params.id, req.user)
+            .then(function(){
+                res.send(204);
+                next();
+            }).catch(errors.InvalidEntryError, sendError(httpErrors.ResourceNotFoundError, next));
+    };
+
+    return {
+        index: index,
+        createEntry: createEntry,
+        del: del
+    };
 };

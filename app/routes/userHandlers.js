@@ -27,7 +27,6 @@ module.exports = function (userHelpers) {
             {name: 'password', in: req.body, required: true}
         ]).then(function () {
             var userInfo = _.pick(req.body, 'name', 'password', 'email');
-            // TODO: Why is this exposed to the handler?
             userHelpers.createUser(userInfo)
                 .then(function (user) {
                     res.json(200, user);
@@ -46,5 +45,10 @@ module.exports = function (userHelpers) {
             });
     };
 
-    return {index: index, view: view, createUser: createUser, del: del};
+    return {
+        index: index,
+        view: view,
+        createUser: createUser,
+        del: del
+    };
 };
