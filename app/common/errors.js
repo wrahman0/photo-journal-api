@@ -18,9 +18,27 @@ function DuplicateEntry(title) {
 }
 util.inherits(DuplicateEntry, Error);
 
+function Validation(errs) {
+    this.message = _.pluck(errs, "message").join("; ");
+}
+util.inherits(Validation, Error);
+
+function MissingArgument(argName) {
+    this.message = "Missing argument: " + argName;
+}
+util.inherits(MissingArgument, Error);
+
+function InvalidEntry(id) {
+    this.message = "Entry with id " + id + " does not exist";
+}
+util.inherits(InvalidEntry, Error);
+
 module.exports = {
     UserExistsError: UserExists,
     DuplicateEntryError: DuplicateEntry,
-    UserNotFoundError: UserNotFound
+    UserNotFoundError: UserNotFound,
+    ValidationError: Validation,
+    MissingArgumentError: MissingArgument,
+    InvalidEntryError: InvalidEntry
 };
 

@@ -5,34 +5,59 @@ var errors = require('../common/errors');
 
 module.exports = function (models) {
 
-    var getEntries = function getEntries() {
-        /*
-         TODO: Format like this:
-         {
-            2015-04-07: {
-                entries: [
-                    { ... },
-                    { ... }
-                ]
-            }
-         }
-          */
-        return models.Entry.findAll();
+    // Assuming its been eager loaded by the user helper
+    var getEntries = function getEntries(user) {
+        return user.entries;
     };
 
-    var createEntry = function createEntry(entryInfo) {
-        models.Entry.find({where: {title: entryInfo.title}})
-            .then(function (entry){
-                if (!_.isNull(entry)){
-                    throw new errors.DuplicateEntryError(entryInfo.title);
+    var getEntryById = function getEntryById(id) {
+        return models.Entry.find({where: {id: id}})
+            .then(function(entry){
+                if (entry === null){
+                    throw new errors.InvalidEntryError(id);
                 }else{
-                    return models.Entry.create(entryInfo);
+                    return entry;
                 }
             });
     };
 
+    var createEntry = function createEntry(entryInfo, user) {
+        return user.getEntries({where: {title: entryInfo.title}})
+            .then(function (entry) {
+                if (!_.isEmpty(entry)) {
+                    throw new errors.DuplicateEntryError(entryInfo.title);
+                } else {
+                    return models.Entry.create({
+                        title: entryInfo.title,
+                        notes: entryInfo.notes,
+                        tags: entryInfo.tags,
+                        location: entryInfo.location
+                    })
+                        .then(function (entry) {
+                            user.addEntry(entry);
+                        });
+                }
+            });
+    };
+
+    var deleteEntry = function deleteEntry(entryId, user) {
+        return user.getEntries({where: {id: entryId}})
+            .then(function (entry) {
+                console.log(entry);
+                if (_.isEmpty(entry)) {
+                    throw new errors.InvalidEntryError(entryId);
+                } else {
+                    return getEntryById(entryId)
+                        .then(function(entry){
+                            return entry.destroy();
+                        });
+                }
+            })
+    };
+
     return {
         getEntries: getEntries,
-        createEntry: createEntry
+        createEntry: createEntry,
+        deleteEntry: deleteEntry
     };
 };

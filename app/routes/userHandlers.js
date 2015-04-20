@@ -4,6 +4,7 @@ var _ = require('lodash');
 var httpErrors = require('restify').errors;
 var errors = require('../common/errors');
 var sendError = require('../common/sendError');
+var validateParams = require('../common/validateParams');
 
 module.exports = function (userHelpers) {
 
@@ -20,14 +21,20 @@ module.exports = function (userHelpers) {
     };
 
     var createUser = function createUser(req, res, next) {
-        var userInfo = _.pick(req.body, 'name', 'password', 'email');
-        // TODO: Why is this exposed to the handler?
-        userHelpers.createUser(userInfo)
-            .then(function (user) {
-                res.json(200, user);
-                next();
-            })
-            .catch(errors.UserExistsError, sendError(httpErrors.ConflictError, next));
+        validateParams([
+            {name: 'name', in: req.body, required: true},
+            {name: 'email', in: req.body, required: true},
+            {name: 'password', in: req.body, required: true}
+        ]).then(function () {
+            var userInfo = _.pick(req.body, 'name', 'password', 'email');
+            userHelpers.createUser(userInfo)
+                .then(function (user) {
+                    res.json(200, user);
+                    next();
+                })
+                .catch(errors.UserExistsError, sendError(httpErrors.ConflictError, next));
+        }).catch(errors.ValidationError, sendError(httpErrors.BadRequestError, next));
+
     };
 
     var del = function del(req, res, next) {
@@ -38,5 +45,10 @@ module.exports = function (userHelpers) {
             });
     };
 
-    return {index: index, view: view, createUser: createUser, del: del};
+    return {
+        index: index,
+        view: view,
+        createUser: createUser,
+        del: del
+    };
 };

@@ -12,7 +12,7 @@ module.exports = function (config) {
         return bcrypt.hashSync(unhashedPassword, bcrypt.genSaltSync(10));
     };
 
-    var isValidPassword = function (plaintext, hashed){
+    var isValidPassword = function (plaintext, hashed) {
         return bcrypt.compareSync(plaintext, hashed);
     };
 
@@ -32,13 +32,13 @@ module.exports = function (config) {
      * @param authUser - The user that is passed by passport. Must be a sequelize object.
      * @param dataUser - The user that is retrieved from the db. Must be a sequelize object.
      */
-    var validateUser = function (authUser, dataUser){
+    var validateUser = function (authUser, dataUser) {
         var authJSON = authUser.dataValues;
         var dataJSON = dataUser.dataValues;
         return (authJSON.email === dataJSON.email &&
-                authJSON.name === dataJSON.name &&
-                authJSON.password === dataJSON.password &&
-                authJSON.token === dataJSON.token);
+        authJSON.name === dataJSON.name &&
+        authJSON.password === dataJSON.password &&
+        authJSON.token === dataJSON.token);
     };
 
     return {

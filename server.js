@@ -7,7 +7,7 @@ var sequelize = require('./config/db')(config);
 var models = require('./app/models')(sequelize);
 var _ = require('lodash');
 
-var authenticationHelpers = require('./app/authentication/authenticationHelpers')(config);
+var authenticationHelpers = require('./app/common/authentication')(config);
 
 var userHelpers = require('./app/helpers/userHelpers')(models, authenticationHelpers);
 var userHandlers = require('./app/routes/userHandlers')(userHelpers);
@@ -68,12 +68,13 @@ server.use(function (req, res, next) {
 });
 
 // Routes
-server.get('/v1/users/:userName', passport.authenticate(['basic', 'bearer'], {session: false}), userHandlers.view);
+server.get('/v1/users/', passport.authenticate(['basic', 'bearer'], {session: false}), userHandlers.view);
 server.post('/v1/users/register', userHandlers.createUser);
-server.del('/v1/users/:userName', passport.authenticate(['basic', 'bearer'], {session: false}), userHandlers.del);
+server.del('/v1/users/', passport.authenticate(['basic', 'bearer'], {session: false}), userHandlers.del);
 
-server.get('/v1/entries/', entryHandlers.index);
-server.post('/v1/entries/', entryHandlers.createEntry);
+server.get('/v1/entries/', passport.authenticate(['basic', 'bearer'], {session: false}), entryHandlers.index);
+server.post('/v1/entries/', passport.authenticate(['basic', 'bearer'], {session: false}), entryHandlers.createEntry);
+server.del('/v1/entries/:id', passport.authenticate(['basic', 'bearer'], {session: false}), entryHandlers.del);
 
 sequelize.authenticate().then(function () {
     console.log('Connection has been established successfully');
