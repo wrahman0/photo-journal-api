@@ -14,6 +14,10 @@ module.exports = function (sequelize, DataTypes) {
                 models.User.hasMany(models.Entry);
             }
         },
-        indexes: [{fields: ['name', 'id', 'token'], method: 'BTREE'}]
+        indexes: [
+            {fields: ['name'], method: 'BTREE'},
+            {fields: ['id'], method: 'BTREE'},
+            {fields: ['token'], method: 'BTREE'}
+        ]
     });
 };
