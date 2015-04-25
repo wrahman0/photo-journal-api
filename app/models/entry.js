@@ -12,7 +12,7 @@ module.exports = function (sequelize, DataTypes) {
         classMethods: {
             associate: function (sequelize, models) {
                 models.Entry.belongsTo(models.User);
-                models.Entry.hasMany(models.Photo, {as: 'Photos'});
+                models.Entry.hasMany(models.Photo);
             }
         },
         indexes: [

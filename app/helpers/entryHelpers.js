@@ -43,7 +43,6 @@ module.exports = function (models) {
     var deleteEntry = function deleteEntry(entryId, user) {
         return user.getEntries({where: {id: entryId}})
             .then(function (entry) {
-                console.log(entry);
                 if (_.isEmpty(entry)) {
                     throw new errors.InvalidEntryError(entryId);
                 } else {
