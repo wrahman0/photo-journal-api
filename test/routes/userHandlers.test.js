@@ -165,7 +165,7 @@ describe('API - User Handler', function () {
                 });
         });
 
-        it('should delete a user when valid credentials are sent', function(done){
+        it('should not delete a user when invalid credentials are sent', function(done){
             api.del(getEndpoint())
                 .auth('invalid', testVariables.unHashedPassword)
                 .expect(401, done);
