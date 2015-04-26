@@ -1,23 +1,27 @@
 "use strict";
 
 var _ = require('lodash');
+var Promise = require('bluebird');
 var errors = require('../common/errors');
 
 module.exports = function (models) {
 
     // Assuming its been eager loaded by the user helper
     var getEntries = function getEntries(user) {
-        return user.entries;
+        return new Promise(function (resolve) {
+            resolve(user.entries);
+        });
     };
 
-    var getEntryById = function getEntryById(id) {
-        return models.Entry.find({where: {id: id}})
-            .then(function(entry){
-                if (entry === null){
-                    throw new errors.InvalidEntryError(id);
-                }else{
-                    return entry;
+    var getEntryById = function getEntryById(user, id) {
+        return getEntries(user)
+            .then(function (entries) {
+                for (var i = 0; i < entries.length; ++i) {
+                    if (entries[i].dataValues.id == id) {
+                        return entries[i];
+                    }
                 }
+                throw new errors.InvalidEntryError(id);
             });
     };
 
@@ -32,10 +36,9 @@ module.exports = function (models) {
                         notes: entryInfo.notes,
                         tags: entryInfo.tags,
                         location: entryInfo.location
-                    })
-                        .then(function (entry) {
-                            user.addEntry(entry);
-                        });
+                    }).then(function (entry) {
+                        user.addEntry(entry);
+                    });
                 }
             });
     };
@@ -47,7 +50,7 @@ module.exports = function (models) {
                     throw new errors.InvalidEntryError(entryId);
                 } else {
                     return getEntryById(entryId)
-                        .then(function(entry){
+                        .then(function (entry) {
                             return entry.destroy();
                         });
                 }
@@ -57,6 +60,7 @@ module.exports = function (models) {
     return {
         getEntries: getEntries,
         createEntry: createEntry,
+        getEntryById: getEntryById,
         deleteEntry: deleteEntry
     };
 };

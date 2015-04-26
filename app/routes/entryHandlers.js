@@ -8,8 +8,11 @@ var httpErrors = require('restify').errors;
 module.exports = function (entryHelpers) {
 
     var index = function index(req, res, next) {
-        res.json(entryHelpers.getEntries(req.user));
-        next();
+        entryHelpers.getEntries(req.user)
+            .then(function (entries) {
+                res.json(entries);
+                next();
+            });
     };
 
     var createEntry = function createEntry(req, res, next) {
@@ -21,9 +24,9 @@ module.exports = function (entryHelpers) {
             }).catch(errors.DuplicateEntryError, sendError(httpErrors.ConflictError, next));
     };
 
-    var del = function del (req, res, next){
+    var del = function del(req, res, next) {
         entryHelpers.deleteEntry(req.params.id, req.user)
-            .then(function(){
+            .then(function () {
                 res.send(204);
                 next();
             }).catch(errors.InvalidEntryError, sendError(httpErrors.ResourceNotFoundError, next));

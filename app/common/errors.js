@@ -33,12 +33,18 @@ function InvalidEntry(id) {
 }
 util.inherits(InvalidEntry, Error);
 
+function InvalidPhoto(id) {
+    this.message = "Photo with id " + id + " does not exist";
+}
+util.inherits(InvalidPhoto, Error);
+
 module.exports = {
     UserExistsError: UserExists,
     DuplicateEntryError: DuplicateEntry,
     UserNotFoundError: UserNotFound,
     ValidationError: Validation,
     MissingArgumentError: MissingArgument,
-    InvalidEntryError: InvalidEntry
+    InvalidEntryError: InvalidEntry,
+    InvalidPhotoError: InvalidPhoto
 };
 

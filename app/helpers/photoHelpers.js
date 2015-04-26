@@ -5,26 +5,46 @@ var errors = require('../common/errors');
 
 module.exports = function (models, entryHelpers) {
 
-    var getPhotosByEntryId = function getPhotosByEntryId(id) {
-        entryHelpers.getEntryById(id).then(function(entry){
-            return entry.getPhotos();
-        });
+    var getPhotosByEntryId = function getPhotosByEntryId(user, id) {
+        return entryHelpers.getEntryById(user, id)
+            .then(function(entry){
+                return entry.getPhotos().then(function(photos){
+                    return photos;
+                });
+            });
+
     };
 
-    var addPhotoToEntry = function addPhotoToEntry(entryId, photo){
-        getEntryById(entryId)
-            .then(function(entry){
+    var getPhotosByPhotoId = function getPhotosByPhotoId(id) {
+        return models.Photo.find({where: {id: id}});
+    };
+
+    var createPhoto = function createPhoto(photoInfo, entry) {
+        return models.Photo.create({
+            caption: photoInfo.caption,
+            encodedBitmap: photoInfo.encodedBitmap,
+            location: photoInfo.location
+        })
+            .then(function (photo) {
                 return entry.addPhoto(photo);
             });
     };
 
-    var createPhoto = function createPhoto(caption, encodedBitmap, location){
-        return models.Photo.create({ caption: caption, encodedBitmap: encodedBitmap, location: location });
+    var deletePhoto = function deletePhoto(photoId) {
+        getPhotosByPhotoId(photoId)
+            .then(function (photo) {
+                if (_.isNull(photo)) {
+                    throw new errors.InvalidPhotoError(photoId);
+                } else {
+                    return photo.destroy();
+                }
+            })
     };
 
     return {
         getPhotosByEntryId: getPhotosByEntryId,
-        addPhotoToEntry: addPhotoToEntry,
-        createPhoto: createPhoto
+        getPhotosByPhotoId: getPhotosByPhotoId,
+        createPhoto: createPhoto,
+        deletePhoto: deletePhoto
     };
 };

@@ -15,8 +15,8 @@ var userHandlers = require('./app/routes/userHandlers')(userHelpers);
 var entryHelpers = require('./app/helpers/entryHelpers')(models);
 var entryHandlers = require('./app/routes/entryHandlers')(entryHelpers);
 
-var photoHelpers = require('./app/helpers/entryHelpers')(models, entryHelpers);
-var photoHandlers = require('./app/routes/entryHandlers')(entryHelpers, photoHelpers);
+var photoHelpers = require('./app/helpers/photoHelpers')(models, entryHelpers);
+var photoHandlers = require('./app/routes/photoHandlers')(entryHelpers, photoHelpers);
 
 var passport = require('passport');
 var strategies = require('./app/authentication/strategies')(userHelpers, authenticationHelpers);
@@ -81,7 +81,7 @@ server.del('/v1/entries/:id', passport.authenticate(['basic', 'bearer'], {sessio
 
 server.get('/v1/entries/:id/photos/', passport.authenticate(['basic', 'bearer'], {session: false}), photoHandlers.view);
 server.post('/v1/entries/:id/photos/', passport.authenticate(['basic', 'bearer'], {session: false}), photoHandlers.createPhoto);
-server.del('/v1/entries/:id/photos/:id', passport.authenticate(['basic', 'bearer'], {session: false}), photoHandlers.del);
+server.del('/v1/entries/:id/photos/:photoId', passport.authenticate(['basic', 'bearer'], {session: false}), photoHandlers.del);
 
 sequelize.authenticate().then(function () {
     console.log('Connection has been established successfully');

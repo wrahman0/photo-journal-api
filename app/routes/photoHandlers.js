@@ -8,28 +8,40 @@ var httpErrors = require('restify').errors;
 module.exports = function (entryHelpers, photoHelpers) {
 
     var view = function view(req, res, next) {
-        var photos = photoHelpers.getPhotosByEntryId(req.params.id);
-        res.json(photos);
-        next();
+        photoHelpers.getPhotosByEntryId(req.user, req.params.id)
+            .then(function(photos){
+                res.json(photos);
+                next();
+            }).catch(errors.InvalidEntryError, sendError(httpErrors.ResourceNotFoundError, next));
     };
 
-    var createPhoto = function createPhoto(req, res, next){
+    var createPhoto = function createPhoto(req, res, next) {
         validateParams([
             {name: 'caption', in: req.body, required: true},
             {name: 'encodedBitmap', in: req.body, required: true},
             {name: 'location', in: req.body, required: true}
-        ]).then(function(){
-            return photoHelpers.createPhoto(req.body.caption, req.body.encodedBitmap, req.body.location);
-        }).then(function(photo){
-            return photoHelpers.addPhotoToEntry(req.params.id, photo);
-        }).then(function(){
+        ]).then(function () {
+            return entryHelpers.getEntryById(req.user, req.id);
+        }).then(function (entry) {
+            var photoInfo = {
+                caption: req.body.caption,
+                encodedBitmap: req.body.encodedBitmap,
+                location: req.body.location
+            };
+            return photoHelpers.createPhoto(photoInfo, entry);
+        }).then(function () {
             res.send(201);
             next();
-        });
+        }).catch(errors.InvalidEntryError, sendError(httpErrors.ResourceNotFoundError, next))
+            .catch(errors.ValidationError, sendError(httpErrors.BadRequestError, next));
     };
 
-    var del = function del(req, res, next){
-
+    var del = function del(req, res, next) {
+        photoHelpers.deletePhoto(req.params.photoId)
+            .then(function () {
+                res.send(204);
+                next();
+            }).catch(errors.InvalidPhotoError, sendError(httpErrors.ResourceNotFoundError, next));
     };
 
     return {
