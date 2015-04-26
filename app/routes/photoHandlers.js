@@ -4,12 +4,13 @@ var _ = require('lodash');
 var errors = require('../common/errors');
 var sendError = require('../common/sendError');
 var httpErrors = require('restify').errors;
+var validateParams = require('../common/validateParams');
 
 module.exports = function (entryHelpers, photoHelpers) {
 
     var view = function view(req, res, next) {
         photoHelpers.getPhotosByEntryId(req.user, req.params.id)
-            .then(function(photos){
+            .then(function (photos) {
                 res.json(photos);
                 next();
             }).catch(errors.InvalidEntryError, sendError(httpErrors.ResourceNotFoundError, next));
@@ -21,7 +22,7 @@ module.exports = function (entryHelpers, photoHelpers) {
             {name: 'encodedBitmap', in: req.body, required: true},
             {name: 'location', in: req.body, required: true}
         ]).then(function () {
-            return entryHelpers.getEntryById(req.user, req.id);
+            return entryHelpers.getEntryById(req.user, req.params.id);
         }).then(function (entry) {
             var photoInfo = {
                 caption: req.body.caption,
@@ -37,11 +38,14 @@ module.exports = function (entryHelpers, photoHelpers) {
     };
 
     var del = function del(req, res, next) {
-        photoHelpers.deletePhoto(req.params.photoId)
-            .then(function () {
+        entryHelpers.getEntryById(req.user, req.params.id)
+            .then(function (entry) {
+                return photoHelpers.deletePhoto(entry, req.params.photoId);
+            }).then(function(){
                 res.send(204);
                 next();
-            }).catch(errors.InvalidPhotoError, sendError(httpErrors.ResourceNotFoundError, next));
+            }).catch(errors.InvalidEntryError, sendError(httpErrors.ResourceNotFoundError, next))
+            .catch(errors.InvalidPhotoError, sendError(httpErrors.ResourceNotFoundError, next));
     };
 
     return {

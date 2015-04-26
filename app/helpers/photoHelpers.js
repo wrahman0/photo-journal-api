@@ -15,8 +15,15 @@ module.exports = function (models, entryHelpers) {
 
     };
 
-    var getPhotosByPhotoId = function getPhotosByPhotoId(id) {
-        return models.Photo.find({where: {id: id}});
+    var getPhotosByPhotoId = function getPhotosByPhotoId(entry, photoId) {
+        return entry.getPhotos({where: {id: photoId}})
+            .then(function(photo){
+                if (_.isNull(photo)){
+                    throw new errors.InvalidPhotoError(photoId);
+                }else{
+                    return photo;
+                }
+            });
     };
 
     var createPhoto = function createPhoto(photoInfo, entry) {
@@ -30,13 +37,13 @@ module.exports = function (models, entryHelpers) {
             });
     };
 
-    var deletePhoto = function deletePhoto(photoId) {
-        getPhotosByPhotoId(photoId)
-            .then(function (photo) {
-                if (_.isNull(photo)) {
+    var deletePhoto = function deletePhoto(entry, photoId){
+        return entry.getPhotos({where: {id: photoId}})
+            .then(function(photo){
+                if (_.isEmpty(photo)){
                     throw new errors.InvalidPhotoError(photoId);
-                } else {
-                    return photo.destroy();
+                }else{
+                    return photo[0].destroy();
                 }
             })
     };
