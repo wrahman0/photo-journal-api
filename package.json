@@ -25,6 +25,7 @@
     "chai-as-promised": "^4.3.0",
     "chai-fuzzy": "^1.5.0",
     "coveralls": "^2.11.2",
+    "istanbul": "^0.3.13",
     "jshint": "^2.6.3",
     "mocha": "^2.2.1",
     "supertest": "^0.15.0"
