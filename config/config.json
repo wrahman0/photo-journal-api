@@ -6,5 +6,9 @@
   "test": {
     "name": "Local Testing",
     "port": 3001
+  },
+  "travis": {
+    "name": "Travis Testing",
+    "port": 3001
   }
 }
