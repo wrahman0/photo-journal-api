@@ -12,5 +12,12 @@
     "password": "",
     "database": "photojournaltest",
     "driver": "mysql"
+  },
+  "travis": {
+    "host": "localhost",
+    "user": "root",
+    "password": "",
+    "database": "photojournaltest",
+    "driver": "mysql"
   }
 }
