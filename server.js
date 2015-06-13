@@ -72,7 +72,6 @@ server.del('/v1/users/', passport.authenticate(['basic', 'bearer'], {session: fa
 
 server.post('/v1/:game/start', passport.authenticate(['basic', 'bearer'], {session: false}), gameHelpers.startGame);
 
-
 sequelize.authenticate().then(function () {
     console.log('Connection has been established successfully');
     sequelize.sync().then(function () {
