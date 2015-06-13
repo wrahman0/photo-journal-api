@@ -48,7 +48,7 @@ describe('API - User Handler', function () {
                 .expect('Content-Type', /json/)
                 .expect(200)
                 .expect(function (res) {
-                    expect(res.body).to.have.all.keys('name', 'email', 'createdAt', 'updatedAt', 'id', 'password', 'token', 'entries');
+                    expect(res.body).to.have.all.keys('name', 'email', 'createdAt', 'updatedAt', 'id', 'password', 'token', 'gamesWon');
                     expect(res.body.name).to.equal(testVariables.name);
                     expect(res.body.password).to.equal(testVariables.hashedPassword);
                     expect(res.body.email).to.equal(testVariables.email);
@@ -94,7 +94,7 @@ describe('API - User Handler', function () {
                      models.User.find({where:{name:testVariables.userObject.name}})
                          .then(function (user){
                              expect(user).to.not.equal(null);
-                             expect(user.dataValues).to.have.all.keys('name', 'email', 'createdAt', 'updatedAt', 'id', 'password', 'token');
+                             expect(user.dataValues).to.have.all.keys('name', 'email', 'createdAt', 'updatedAt', 'id', 'password', 'token', 'gamesWon');
                              expect(user.name).to.equal(testVariables.userObject.name);
                              expect(user.email).to.equal(testVariables.userObject.email);
                              expect(user.password).to.not.equal(testVariables.userObject.password);

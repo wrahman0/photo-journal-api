@@ -7,7 +7,7 @@ module.exports = function (sequelize, DataTypes) {
         password: {type: DataTypes.STRING},
         token: {type: DataTypes.STRING},
         email: {type: DataTypes.STRING},
-        gamesWon: {type: DataTypes.INTEGER}
+        gamesWon: {type: DataTypes.INTEGER, defaultValue: 0}
     }, {
         timestamps: true,
         indexes: [
