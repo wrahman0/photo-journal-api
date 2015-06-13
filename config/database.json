@@ -19,5 +19,13 @@
     "password": "",
     "database": "photojournaltest",
     "driver": "mysql"
+  },
+  "heroku": {
+    "host": {"ENV": "HOSTNAME"},
+    "user": {"ENV": "USERNAME"},
+    "password": {"ENV": "PASSWORD"},
+    "port": {"ENV": "PORT"},
+    "database": "photojournal",
+    "driver": "mysql"
   }
 }

@@ -10,5 +10,9 @@
   "travis": {
     "name": "Travis Testing",
     "port": 3001
+  },
+  "heroku": {
+    "name": "Heroku Deployment",
+    "port": 3000
   }
 }

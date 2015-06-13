@@ -21,8 +21,6 @@ var photoHandlers = require('./app/routes/photoHandlers')(entryHelpers, photoHel
 var passport = require('passport');
 var strategies = require('./app/authentication/strategies')(userHelpers, authenticationHelpers);
 
-
-// TODO: v2.x - Make these injectable for mocking purposes
 passport.use(strategies.BasicStrategy);
 passport.use(strategies.BearerStrategy);
 

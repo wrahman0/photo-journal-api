@@ -9,9 +9,7 @@ var _ = require('lodash');
 module.exports = function (userHelpers, authenticationHelpers) {
 
     // Separated the logic because it will be easier to test
-
     var BasicStrategyLogic = function (username, password, done) {
-        // TODO: instead of getUserByFilter, make it getUserByName. Expose less functionality
         userHelpers.getUserByFilter({name: username})
             .then(function (user) {
                 if (authenticationHelpers.isValidPassword(password, user.password)) {
@@ -26,7 +24,6 @@ module.exports = function (userHelpers, authenticationHelpers) {
     };
 
     var BearerStrategyLogic = function (token, done) {
-        // TODO: instead of getUserByFilter, make it getUserByToken. Expose less functionality
         userHelpers.getUserByFilter({token: token})
             .then(function (user) {
                 if (_.isNull(user)) {
