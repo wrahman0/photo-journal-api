@@ -12,17 +12,9 @@ var authenticationHelpers = require('./app/common/authentication')(config);
 var userHelpers = require('./app/helpers/userHelpers')(models, authenticationHelpers);
 var userHandlers = require('./app/routes/userHandlers')(userHelpers);
 
-var entryHelpers = require('./app/helpers/entryHelpers')(models);
-var entryHandlers = require('./app/routes/entryHandlers')(entryHelpers);
-
-var photoHelpers = require('./app/helpers/photoHelpers')(models, entryHelpers);
-var photoHandlers = require('./app/routes/photoHandlers')(entryHelpers, photoHelpers);
-
 var passport = require('passport');
 var strategies = require('./app/authentication/strategies')(userHelpers, authenticationHelpers);
 
-
-// TODO: v2.x - Make these injectable for mocking purposes
 passport.use(strategies.BasicStrategy);
 passport.use(strategies.BearerStrategy);
 
@@ -74,14 +66,6 @@ server.use(function (req, res, next) {
 server.get('/v1/users/', passport.authenticate(['basic', 'bearer'], {session: false}), userHandlers.view);
 server.post('/v1/users/register', userHandlers.createUser);
 server.del('/v1/users/', passport.authenticate(['basic', 'bearer'], {session: false}), userHandlers.del);
-
-server.get('/v1/entries/', passport.authenticate(['basic', 'bearer'], {session: false}), entryHandlers.index);
-server.post('/v1/entries/', passport.authenticate(['basic', 'bearer'], {session: false}), entryHandlers.createEntry);
-server.del('/v1/entries/:id', passport.authenticate(['basic', 'bearer'], {session: false}), entryHandlers.del);
-
-server.get('/v1/entries/:id/photos/', passport.authenticate(['basic', 'bearer'], {session: false}), photoHandlers.view);
-server.post('/v1/entries/:id/photos/', passport.authenticate(['basic', 'bearer'], {session: false}), photoHandlers.createPhoto);
-server.del('/v1/entries/:id/photos/:photoId', passport.authenticate(['basic', 'bearer'], {session: false}), photoHandlers.del);
 
 sequelize.authenticate().then(function () {
     console.log('Connection has been established successfully');

@@ -10,10 +10,6 @@ module.exports = function (sequelize, DataTypes) {
         gamesWon: {type: DataTypes.INTEGER}
     }, {
         timestamps: true,
-        classMethods: {
-            associate: function (sequelize, models) {
-            }
-        },
         indexes: [
             {fields: ['name'], method: 'BTREE'},
             {fields: ['id'], method: 'BTREE'},

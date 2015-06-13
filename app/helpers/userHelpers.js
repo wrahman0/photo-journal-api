@@ -6,13 +6,12 @@ var errors = require('../common/errors');
 module.exports = function (models, authenticationHelpers) {
 
     var getUsers = function getUsers() {
-        return models.User.findAll({include: [{model: models.Entry}]});
+        return models.User.findAll();
     };
 
     var getUser = function getUser(name) {
         return models.User.findAll({
-            where: {name: name},
-            include: [{model: models.Entry}]
+            where: {name: name}
         }).then(function (user) {
             if (user.length === 0) throw new errors.UserNotFoundError(name);
             else return user[0];
@@ -21,8 +20,7 @@ module.exports = function (models, authenticationHelpers) {
 
     var getUserByFilter = function getUserByFilter(filter) {
         return models.User.find({
-            where: filter,
-            include: [{model: models.Entry}]
+            where: filter
         })
             .then(function (user) {
                 if (user === null) {
