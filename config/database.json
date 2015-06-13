@@ -3,21 +3,14 @@
     "host": "localhost",
     "user": "root",
     "password": "",
-    "database": "photojournal",
+    "database": "vessel",
     "driver": "mysql"
   },
   "test": {
     "host": "localhost",
     "user": "root",
     "password": "",
-    "database": "photojournaltest",
-    "driver": "mysql"
-  },
-  "travis": {
-    "host": "localhost",
-    "user": "root",
-    "password": "",
-    "database": "photojournaltest",
+    "database": "vesselTest",
     "driver": "mysql"
   }
 }

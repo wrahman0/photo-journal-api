@@ -6,12 +6,12 @@ module.exports = function (sequelize, DataTypes) {
         name: {type: DataTypes.STRING},
         password: {type: DataTypes.STRING},
         token: {type: DataTypes.STRING},
-        email: {type: DataTypes.STRING}
+        email: {type: DataTypes.STRING},
+        gamesWon: {type: DataTypes.INTEGER}
     }, {
         timestamps: true,
         classMethods: {
             associate: function (sequelize, models) {
-                models.User.hasMany(models.Entry);
             }
         },
         indexes: [

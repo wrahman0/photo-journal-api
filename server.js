@@ -85,7 +85,7 @@ server.del('/v1/entries/:id/photos/:photoId', passport.authenticate(['basic', 'b
 
 sequelize.authenticate().then(function () {
     console.log('Connection has been established successfully');
-    sequelize.sync().then(function () {
+    sequelize.sync({force:true}).then(function () {
         server.listen(config.port, function () {
             console.log(' --- Listening to %s --- ', server.url);
         });
