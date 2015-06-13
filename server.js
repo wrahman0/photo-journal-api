@@ -12,6 +12,9 @@ var authenticationHelpers = require('./app/common/authentication')(config);
 var userHelpers = require('./app/helpers/userHelpers')(models, authenticationHelpers);
 var userHandlers = require('./app/routes/userHandlers')(userHelpers);
 
+var gameHelpers = require('./app/helpers/gameHelpers')(models, authenticationHelpers, userHelpers);
+var ticTacToeHandlers = require('./app/routes/gameHandlers')(gameHelpers);
+
 var passport = require('passport');
 var strategies = require('./app/authentication/strategies')(userHelpers, authenticationHelpers);
 
@@ -66,6 +69,9 @@ server.use(function (req, res, next) {
 server.get('/v1/users/', passport.authenticate(['basic', 'bearer'], {session: false}), userHandlers.view);
 server.post('/v1/users/register', userHandlers.createUser);
 server.del('/v1/users/', passport.authenticate(['basic', 'bearer'], {session: false}), userHandlers.del);
+
+server.post('/v1/:game/start', passport.authenticate(['basic', 'bearer'], {session: false}), gameHelpers.startGame);
+
 
 sequelize.authenticate().then(function () {
     console.log('Connection has been established successfully');

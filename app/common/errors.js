@@ -38,6 +38,11 @@ function InvalidPhoto(id) {
 }
 util.inherits(InvalidPhoto, Error);
 
+function InvalidGame(id) {
+    this.message = "Photo with id " + id + " does not exist";
+}
+util.inherits(InvalidGame, Error);
+
 module.exports = {
     UserExistsError: UserExists,
     DuplicateEntryError: DuplicateEntry,
@@ -45,6 +50,7 @@ module.exports = {
     ValidationError: Validation,
     MissingArgumentError: MissingArgument,
     InvalidEntryError: InvalidEntry,
-    InvalidPhotoError: InvalidPhoto
+    InvalidPhotoError: InvalidPhoto,
+    InvalidGameError: InvalidGame
 };
 
