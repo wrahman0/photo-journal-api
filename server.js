@@ -10,7 +10,12 @@ var _ = require('lodash');
 var authenticationHelpers = require('./app/common/authentication')(config);
 
 var userHelpers = require('./app/helpers/userHelpers')(models, authenticationHelpers);
+var gameHelpers = require('./app/helpers/gameHelpers')(models);
+
+var gameStrategies = require('./app/common/gameStrategies')(userHelpers, gameHelpers);
+
 var userHandlers = require('./app/routes/userHandlers')(userHelpers);
+var gameHandlers = require('./app/routes/gameHandlers')(gameHelpers, gameStrategies);
 
 var passport = require('passport');
 var strategies = require('./app/authentication/strategies')(userHelpers, authenticationHelpers);
@@ -67,9 +72,12 @@ server.get('/v1/users/', passport.authenticate(['basic', 'bearer'], {session: fa
 server.post('/v1/users/register', userHandlers.createUser);
 server.del('/v1/users/', passport.authenticate(['basic', 'bearer'], {session: false}), userHandlers.del);
 
+server.post('/v1/:gameId/start', passport.authenticate(['basic', 'bearer'], {session: false}), gameHandlers.startGame);
+server.post('/v1/:gameId/update', passport.authenticate(['basic', 'bearer'], {session: false}), gameHandlers.updateState);
+
 sequelize.authenticate().then(function () {
     console.log('Connection has been established successfully');
-    sequelize.sync({force:true}).then(function () {
+    sequelize.sync().then(function () {
         server.listen(config.port, function () {
             console.log(' --- Listening to %s --- ', server.url);
         });

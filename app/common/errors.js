@@ -29,9 +29,14 @@ function MissingArgument(argName) {
 util.inherits(MissingArgument, Error);
 
 function InvalidGameId (gameId){
-    this.message = "Missing argument: " + gameId;
+    this.message = "Invalid Game ID: " + gameId;
 }
 util.inherits(InvalidGameId, Error);
+
+function GameDoesntExist (gameId){
+    this.message = "No game in progress with gameId: " + gameId + " for this user.";
+}
+util.inherits(GameDoesntExist, Error);
 
 module.exports = {
     UserExistsError: UserExists,
@@ -39,6 +44,7 @@ module.exports = {
     UserNotFoundError: UserNotFound,
     ValidationError: Validation,
     MissingArgumentError: MissingArgument,
-    InvalidGameIdError: InvalidGameId
+    InvalidGameIdError: InvalidGameId,
+    GameDoesntExistError: GameDoesntExist
 };
 
