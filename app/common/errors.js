@@ -13,11 +13,6 @@ function UserNotFound(userName) {
 }
 util.inherits(UserNotFound, Error);
 
-function DuplicateEntry(title) {
-    this.message = "Entry with the following title exists: " + title;
-}
-util.inherits(DuplicateEntry, Error);
-
 function Validation(errs) {
     this.message = _.pluck(errs, "message").join("; ");
 }
@@ -45,7 +40,6 @@ util.inherits(InvalidMove, Error);
 
 module.exports = {
     UserExistsError: UserExists,
-    DuplicateEntryError: DuplicateEntry,
     UserNotFoundError: UserNotFound,
     ValidationError: Validation,
     MissingArgumentError: MissingArgument,
