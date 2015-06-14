@@ -35,7 +35,7 @@ module.exports = function (gameHelpers, gameStrategies) {
         ]).then(function () {
             // Retrieve current state
             return gameHelpers.getCurrentGame(req.user.token, req.params.gameId).then(function (game){
-                return gameStrategies.getGameStrategy(game.gameId)(game.state, req.body.update)
+                return gameStrategies.getGameStrategy(game.gameId)(game.state, req.body.update, req.user.token)
             }).then(function (state){
                 res.json({state: state});
                 next();
