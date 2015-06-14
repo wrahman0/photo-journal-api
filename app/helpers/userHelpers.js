@@ -48,6 +48,19 @@ module.exports = function (models, authenticationHelpers) {
             });
     };
 
+    var resetToken = function resetToken (userName){
+        return models.User.find({where: {name: userName}})
+            .then(function (user) {
+                if (!_.isNull(user)) {
+                    user.updateAttributes({token: authenticationHelpers.encodePayload(userInfo)}).then(function(){
+                        return user;
+                    });
+                }else{
+                    throw new errors.UserExistsError(userName);
+                }
+            });
+    };
+
     var deleteUser = function deleteUser(userName) {
         return models.User.find({where: {name: userName}})
             .then(function (user) {
@@ -62,6 +75,7 @@ module.exports = function (models, authenticationHelpers) {
         getUser: getUser,
         getUserByFilter: getUserByFilter,
         createUser: createUser,
-        deleteUser: deleteUser
+        deleteUser: deleteUser,
+        resetToken: resetToken
     };
 };

@@ -68,8 +68,10 @@ server.use(function (req, res, next) {
 });
 
 // Routes
+server.get('/v1/users/leaderboard', userHandlers.index);
 server.get('/v1/users/', passport.authenticate(['basic', 'bearer'], {session: false}), userHandlers.view);
 server.post('/v1/users/register', userHandlers.createUser);
+server.post('/v1/users/token',passport.authenticate(['basic', 'bearer'], userHandlers.resetToken));
 server.del('/v1/users/', passport.authenticate(['basic', 'bearer'], {session: false}), userHandlers.del);
 
 server.post('/v1/:gameId/start', passport.authenticate(['basic', 'bearer'], {session: false}), gameHandlers.startGame);

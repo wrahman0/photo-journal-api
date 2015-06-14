@@ -8,11 +8,9 @@ var _ = require('lodash');
 
 module.exports = function (userHelpers, authenticationHelpers) {
 
-    // Separated the logic because it will be easier to test
-
+    // Separated the logic because it will be easier to test with dependency injection
     var BasicStrategyLogic = function (username, password, done) {
-        // TODO: instead of getUserByFilter, make it getUserByName. Expose less functionality
-        userHelpers.getUserByFilter({name: username})
+        return userHelpers.getUserByFilter({name: username})
             .then(function (user) {
                 if (authenticationHelpers.isValidPassword(password, user.password)) {
                     done(null, user);
@@ -26,13 +24,16 @@ module.exports = function (userHelpers, authenticationHelpers) {
     };
 
     var BearerStrategyLogic = function (token, done) {
-        // TODO: instead of getUserByFilter, make it getUserByToken. Expose less functionality
-        userHelpers.getUserByFilter({token: token})
+        return userHelpers.getUserByFilter({token: token})
             .then(function (user) {
                 if (_.isNull(user)) {
                     done(null, false);
                 } else {
-                    done(null, user);
+                    authenticationHelpers.isValidToken(token).then(function (){
+                        done(null, user);
+                    }).catch(errors.TokenExpiredError, function () {
+                        done(new httpErrors.InvalidCredentialsError("Unauthorized request"));
+                    });
                 }
             })
             .catch(errors.UserNotFoundError, function () {

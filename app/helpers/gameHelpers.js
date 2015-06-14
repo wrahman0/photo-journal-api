@@ -42,22 +42,36 @@ module.exports = function (models) {
             });
     };
 
-    var endGame = function endGame (token, gameId) {
-
-        return models.Game.findAll({where: {token: token, gameId: gameId}})
-            .then(function (games){
-                if (games.length === 0){
-                    throw new errors.GameDoesntExistError(gameId);
-                }else{
-                    return games[0].destroy();
-                }
+    var endGame = function endGame (token, gameId, won) {
+        if (won){
+            return models.User.find({token: token}).then(function(user){
+                return user.updateAttributes({gamesWon: user.gamesWon+1});
+            }).then(function (){
+                return models.Game.findAll({where: {token: token, gameId: gameId}})
+                    .then(function (games){
+                        if (games.length === 0){
+                            throw new errors.GameDoesntExistError(gameId);
+                        }else{
+                            return games[0].destroy();
+                        }
+                    });
             });
-
+        }else{
+            return models.Game.findAll({where: {token: token, gameId: gameId}})
+                .then(function (games){
+                    if (games.length === 0){
+                        throw new errors.GameDoesntExistError(gameId);
+                    }else{
+                        return games[0].destroy();
+                    }
+                });
+        }
     };
 
     var updateState = function updateState (token, gameId, state){
         return models.Game.findAll({where: {token: token, gameId: gameId}})
             .then(function (games){
+                console.log("Here");
                 if (games.length === 0){
                     throw new errors.GameDoesntExistError(gameId);
                 }else{
@@ -68,10 +82,24 @@ module.exports = function (models) {
             });
     };
 
+    var increasePoints = function increasePoints (token, gameId){
+        return models.Game.findAll({where: {token: token, gameId: gameId}})
+            .then(function (games){
+                if (games.length === 0){
+                    throw new errors.GameDoesntExistError(gameId);
+                }else{
+                    return games[0].updateAttributes({
+                        gamesWon: games[0].gamesWon + 1
+                    });
+                }
+            });
+    }
+
     return {
         startGame: startGame,
         getCurrentGame: getCurrentGame,
         endGame: endGame,
-        updateState: updateState
+        updateState: updateState,
+        increasePoints: increasePoints
     };
 };

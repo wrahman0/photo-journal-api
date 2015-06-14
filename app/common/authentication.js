@@ -2,7 +2,10 @@
 
 var _ = require('lodash');
 var bcrypt = require('bcryptjs');
-var jwt = require('jwt-simple');
+//var jwt = require('jwt-simple');
+var jwt = require('jsonwebtoken');
+var errors = require('./errors');
+var Promise = require('bluebird');
 
 module.exports = function (config) {
 
@@ -17,11 +20,23 @@ module.exports = function (config) {
     };
 
     var encodePayload = function (payload) {
-        return jwt.encode(payload, secret);
+        return jwt.sign(payload, secret, {expiresInMinutes: 10});
     };
 
     var decodePayload = function (payload) {
         return jwt.decode(payload, secret);
+    };
+
+    var isValidToken = function (token) {
+        return new Promise ( function (resolve, reject){
+            jwt.verify(token, secret, function (err, decode) {
+                if (err !== null && err.name === 'TokenExpiredError'){
+                    reject (new errors.TokenExpiredError());
+                }else{
+                    resolve();
+                }
+            });
+        });
     };
 
     /**
@@ -44,6 +59,7 @@ module.exports = function (config) {
     return {
         generateHashedPassword: generateHashedPassword,
         isValidPassword: isValidPassword,
+        isValidToken: isValidToken,
         encodePayload: encodePayload,
         decodePayload: decodePayload,
         validateUser: validateUser

@@ -81,7 +81,7 @@ module.exports = function (userHelpers, gameHelpers) {
             }
 
             if (result === resultText.winStatus || result === resultText.loseStatus || result === resultText.tieStatus){
-                return gameHelpers.endGame(token, 'tictactoe').then(function(){
+                return gameHelpers.endGame(token, 'tictactoe', (result === resultText.winStatus) ).then(function(){
                     currentState.result = result;
                     resolve(currentState);
                 });

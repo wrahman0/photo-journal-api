@@ -38,6 +38,11 @@ function InvalidMove (){
 }
 util.inherits(InvalidMove, Error);
 
+function TokenExpired (){
+    this.message = "Current Token has Expired. Please request for another token";
+}
+util.inherits(TokenExpired, Error);
+
 module.exports = {
     UserExistsError: UserExists,
     UserNotFoundError: UserNotFound,
@@ -45,6 +50,7 @@ module.exports = {
     MissingArgumentError: MissingArgument,
     InvalidGameIdError: InvalidGameId,
     GameDoesntExistError: GameDoesntExist,
-    InvalidMoveError: InvalidMove
+    InvalidMoveError: InvalidMove,
+    TokenExpiredError: TokenExpired
 };
 
