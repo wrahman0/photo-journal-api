@@ -2,13 +2,49 @@
 
 var _ = require('lodash');
 var Promise = require('bluebird');
+var errors = require('./errors');
 
 module.exports = function (userHelpers, gameHelpers) {
 
     var TicTacToeStrategy = function TicTacToeStrategy(currentState, update, token) {
+
+        var boardMarker = {
+            player: 1,
+            computer: -1
+        };
+
+        var resultText = {
+            winStatus: "win",
+            loseStatus: "lose",
+            tieStatus: "tie",
+            undeterminedStatus: "undetermined"
+        };
+
+        var checkWinCondition = function checkWinCondition(board, value){
+            return (board[0][0] === value && board[1][0] === value && board[2][0] === value)
+            ||(board[0][1] === value && board[1][1] === value && board[2][1] === value)
+            ||(board[0][2] === value && board[1][2] === value && board[2][2] === value)
+            ||(board[0][0] === value && board[0][1] === value && board[0][2] === value)
+            ||(board[1][0] === value && board[1][1] === value && board[1][2] === value)
+            ||(board[2][0] === value && board[2][1] === value && board[2][2] === value)
+            ||(board[0][0] === value && board[1][1] === value && board[2][2] === value)
+            ||(board[2][0] === value && board[1][1] === value && board[0][2] === value)
+        };
+
+        var findNextLocation = function findNextLocation(board){
+            var zeroLocations = [];
+            for (var i = 0; i < 3; ++i){
+                for (var j = 0; j < 3; ++j){
+                    if (board[i][j] === 0){
+                        zeroLocations.push([i,j]);
+                    }
+                }
+            }
+            return (zeroLocations.length === 0) ? -1 : zeroLocations[Math.floor(Math.random() * zeroLocations.length)];
+        };
+
         return new Promise(function (resolve, reject){
             // parse the currentState
-            console.log ("Current State: ", currentState, " update: ", update);
             currentState = JSON.parse(currentState);
 
             if (Object.keys(currentState).length === 0){
@@ -17,49 +53,41 @@ module.exports = function (userHelpers, gameHelpers) {
                 }
             }
 
-            console.log ("Current State: ", currentState, " update: ", update);
-            currentState.board[update.gridLoc[0]][[update.gridLoc[1]]] = 1;
-            console.log ("Current State: ", currentState, " update: ", update);
-
-            var result = "undetermined";
-
-            // check if the player won
-            if ((currentState.board[0][0] === 1 && currentState.board[1][0] === 1 && currentState.board[2][0] === 1)
-                ||(currentState.board[0][1] === 1 && currentState.board[1][1] === 1 && currentState.board[2][1] === 1)
-                ||(currentState.board[0][2] === 1 && currentState.board[1][2] === 1 && currentState.board[2][2] === 1)){
-                result = "win";
+            if (currentState.board[update.gridLoc[0]][[update.gridLoc[1]]] !== 0){
+                reject (new errors.InvalidMoveError());
+            }else{
+                currentState.board[update.gridLoc[0]][[update.gridLoc[1]]] = boardMarker.player;
             }
 
-            // server's move
-            var found = false;
-            for (var i = 0; i < 3; ++i){
-                for (var j = 0; j < 3; ++j){
-                    if (!found && currentState.board[i][j] === 0){
-                        currentState.board[i][j] = -1;
-                        found = true;
-                    }
-                }
+            var result = resultText.undeterminedStatus;
+
+            // check if the player won
+            if (checkWinCondition(currentState.board, boardMarker.player)){
+                result = resultText.winStatus;
+            }
+
+            // computer's move (this computer is dumb and therefore chooses the first empty cell)
+            var loc = findNextLocation (currentState.board);
+
+            if (loc === -1){
+                result = resultText.tieStatus;
+            }else{
+                currentState.board[loc[0]][loc[1]] = boardMarker.computer;
             }
 
             // check if the server won
-            if ((currentState.board[0][0] === -1 && currentState.board[1][0] === -1 && currentState.board[2][0] === -1)
-                || (currentState.board[0][1] === -1 && currentState.board[1][1] === -1 && currentState.board[2][1] === -1)
-                || (currentState.board[0][2] === -1 && currentState.board[1][2] === -1 && currentState.board[2][2] === -1) ){
-                result = "lose";
+            if (checkWinCondition(currentState.board, boardMarker.computer)){
+                result = resultText.loseStatus;
             }
 
-            console.log ("Current State: ", currentState, " update: ", update);
-
-            if (result === "win" || result === "lose"){
+            if (result === resultText.winStatus || result === resultText.loseStatus || result === resultText.tieStatus){
                 return gameHelpers.endGame(token, 'tictactoe').then(function(){
                     currentState.result = result;
-                    resolve(JSON.stringify(currentState));
+                    resolve(currentState);
                 });
             }else{
                 currentState.result = result;
-                currentState = JSON.stringify(currentState);
-                console.log ("Current State: ", currentState);
-                return gameHelpers.updateState(token, 'tictactoe', currentState).then(function(){
+                return gameHelpers.updateState(token, 'tictactoe', JSON.stringify(currentState)).then(function(){
                     resolve(currentState);
                 });
             }

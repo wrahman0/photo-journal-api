@@ -39,7 +39,9 @@ module.exports = function (gameHelpers, gameStrategies) {
             }).then(function (state){
                 res.json({state: state});
                 next();
-            }).catch (errors.GameDoesntExistError, sendError(httpErrors.BadRequestError, next));
+            }).catch (errors.GameDoesntExistError, sendError(httpErrors.BadRequestError, next))
+                .catch (errors.InvalidMoveError, sendError(httpErrors.BadRequestError, next));
+
         }).catch(errors.ValidationError, sendError(httpErrors.BadRequestError, next));
     };
 

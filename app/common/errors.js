@@ -38,6 +38,11 @@ function GameDoesntExist (gameId){
 }
 util.inherits(GameDoesntExist, Error);
 
+function InvalidMove (){
+    this.message = "Invalid Move!";
+}
+util.inherits(InvalidMove, Error);
+
 module.exports = {
     UserExistsError: UserExists,
     DuplicateEntryError: DuplicateEntry,
@@ -45,6 +50,7 @@ module.exports = {
     ValidationError: Validation,
     MissingArgumentError: MissingArgument,
     InvalidGameIdError: InvalidGameId,
-    GameDoesntExistError: GameDoesntExist
+    GameDoesntExistError: GameDoesntExist,
+    InvalidMoveError: InvalidMove
 };
 
